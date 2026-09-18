@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:usb_to_com/utils/hex_dump.dart';
+import 'package:portside/utils/hex_dump.dart';
 
 void main() {
   test('빈 목록은 빈 문자열', () {

@@ -1,4 +1,4 @@
-# usb-to-com: macOS 전용 Flutter 시리얼 터미널 — 설계 문서
+# Portside: macOS 전용 Flutter 시리얼 터미널 — 설계 문서
 
 ## 배경
 macOS에는 Windows처럼 무료 COM 포트 터미널이 마땅치 않다. CoolTerm은 오래돼서 더 이상 실행되지 않고, Termius는 시리얼 통신을 지원하지만 유료다. Termius 수준으로 깔끔하되, 단일 목적(시리얼 통신)에 맞게 단순화한 macOS 데스크톱 앱을 직접 만든다.
@@ -52,7 +52,7 @@ Line Sender ──text──► TerminalSessionProvider.send(bytes) ──► Se
 
 ## 기본값
 - 로깅 시작/정지 단축키: ⌘⇧R
-- 로그 파일: `~/Downloads/usb_to_com_logs/<port>_<yyyyMMdd_HHmmss>.log`, RX only
+- 로그 파일: `~/Downloads/portside_logs/<port>_<yyyyMMdd_HHmmss>.log`, RX only
 - Local Echo 기본 ON
 - Line Sender 줄바꿈 기본 `\n` (드롭다운으로 변경 가능)
 - 자동 재연결 없음
@@ -105,7 +105,7 @@ App Sandbox를 끈 현재 설정으로 실기기 열기/읽기/쓰기 전부 정
 - [x] **Phase 3** — 포트 감지/새로고침(`PortSelector`, 2초 폴링) + 보드레이트 UI(`BaudRateSelector`, 프리셋 메뉴 + 숫자만 입력 가능한 필드). 사용자 확인 완료.
 - [x] **Phase 4** — Line Sender: 여러 줄을 미리 써두고 Enter로 커서 줄만 전송(Ctrl+Enter는 줄바꿈), 전송 후 커서는 다음 줄 끝으로 자동 이동. 실기기로 검증 완료 — 처음엔 Ctrl+Enter를 "기본 동작에 맡김(ignored)"으로 처리했더니 플랫폼 텍스트 입력 채널이 raw 키 이벤트와 별개로 움직여서 줄바꿈이 전혀 안 들어가는 문제가 있었음(터미널 raw 입력 때와 같은 종류의 이중 채널 이슈) — 두 경우(Enter/Ctrl+Enter) 모두 컨트롤러를 직접 조작하는 방식으로 고쳐서 해결. 터미널 raw 타이핑은 `xterm2`로 구현(범위 변경 1·2 참고).
 - [x] **Phase 5** — Hex View 토글: `lib/utils/hex_dump.dart`(순수 함수, 유닛 테스트 완료) + `HexView` 위젯, `TerminalSessionProvider.rawBytes`(RX raw 바이트, 화면 표시/로컬 에코와 무관)를 그대로 렌더링. 화면 상단 SegmentedButton으로 Terminal/Hex 전환.
-- [x] **Phase 6** — Output 로깅: `LogFileService`(`~/Downloads/usb_to_com_logs/<port>_<timestamp>.log`, RX raw bytes만), 상태바에 기록 중 표시(빨간 점 + 파일명), record/stop 아이콘 버튼, 앱 전역 단축키 ⌘⇧R(`CallbackShortcuts`, 포커스 위치 무관하게 동작). `lib/app.dart` 신설(Provider + 전역 단축키 + MaterialApp).
+- [x] **Phase 6** — Output 로깅: `LogFileService`(`~/Downloads/portside_logs/<port>_<timestamp>.log`, RX raw bytes만), 상태바에 기록 중 표시(빨간 점 + 파일명), record/stop 아이콘 버튼, 앱 전역 단축키 ⌘⇧R(`CallbackShortcuts`, 포커스 위치 무관하게 동작). `lib/app.dart` 신설(Provider + 전역 단축키 + MaterialApp).
 - [x] **Phase 7** — 폰트/테마: `SettingsProvider`(`shared_preferences`로 영속화) + `SettingsDialog`(폰트 4종, 크기 슬라이더, 테마 9종 — xterm2 기본 2개 + 직접 만든 그린 포스포/라이트 + Solarized Dark/Light·Dracula·Nord·Gruvbox Dark). `TerminalView`(xterm2 `theme`/`textStyle`)와 `HexView` 둘 다 같은 설정을 따르도록 연결. AppBar에 설정 아이콘 버튼 추가.
   - 유명 테마 추가(2026-09-06): xterm2가 256색/트루컬러 SGR(`38;5;N`, `38;2;R;G;B`)까지 자체 지원한다는 걸 실기기로 확인한 뒤, 우리 `TerminalTheme`(16-ANSI-color 모델)이 이미 Solarized/Dracula/Nord/Gruvbox 같은 유명 팔레트를 그대로 표현할 수 있다는 데 착안해 추가함. 각 팔레트는 공식/통용 hex 값을 그대로 옮김.
   - 스크롤백 줄 수 설정 추가(2026-09-06): `xterm2`의 `Terminal.maxLines`는 생성자에서만 정해지는 `final` 값이라 런타임에 못 바꿈 — 값이 바뀌면 `TerminalSessionProvider.setScrollbackLines()`가 `Terminal`을 통째로 새로 만들어 교체한다(그 순간 화면 스크롤백은 비워짐, 실제 터미널 앱들도 보통 그럼). `SettingsProvider`(설정값 보관/영속화)와 `TerminalSessionProvider`(실제 적용)는 서로 모르게 두고, `app.dart`가 `_settings`에 리스너를 달아 둘을 이어준다.

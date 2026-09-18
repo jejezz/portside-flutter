@@ -72,14 +72,14 @@ ThemeData _buildTheme() {
   );
 }
 
-class UsbToComApp extends StatefulWidget {
-  const UsbToComApp({super.key});
+class PortsideApp extends StatefulWidget {
+  const PortsideApp({super.key});
 
   @override
-  State<UsbToComApp> createState() => _UsbToComAppState();
+  State<PortsideApp> createState() => _PortsideAppState();
 }
 
-class _UsbToComAppState extends State<UsbToComApp> with WidgetsBindingObserver {
+class _PortsideAppState extends State<PortsideApp> with WidgetsBindingObserver {
   late final _sessions = SessionsProvider();
   late final _settings = SettingsProvider();
 

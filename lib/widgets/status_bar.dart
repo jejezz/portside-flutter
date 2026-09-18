@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../services/file_reveal_service.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
 import 'glass_card.dart';
@@ -20,7 +21,11 @@ class StatusBar extends StatelessWidget {
       children: [
         Text(
           '${session.byteCount} bytes',
-          style: const TextStyle(fontSize: 12.5, color: AppColors.textMid, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 12.5,
+            color: AppColors.textMid,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(width: 10),
         if (session.isLogging)
@@ -30,18 +35,32 @@ class StatusBar extends StatelessWidget {
           ),
         const Spacer(),
         IconBadge(
-          icon: session.isLogging ? Icons.stop_rounded : Icons.fiber_manual_record_rounded,
+          icon: session.isLogging
+              ? Icons.stop_rounded
+              : Icons.fiber_manual_record_rounded,
           color: session.isLogging ? AppColors.primary : AppColors.danger,
           active: session.isLogging,
           tooltip: session.isLogging ? '기록 정지 (⌘⇧R)' : '기록 시작 (⌘⇧R)',
-          onTap: (connected || session.isLogging) ? () => session.toggleLogging() : null,
+          onTap: (connected || session.isLogging)
+              ? () => session.toggleLogging()
+              : null,
+        ),
+        const SizedBox(width: 6),
+        IconBadge(
+          icon: Icons.folder_open_rounded,
+          color: AppColors.idle,
+          tooltip: session.logFilePath == null ? '기록된 로그 파일 없음' : '기록 파일 위치 열기',
+          onTap: session.logFilePath == null
+              ? null
+              : () => FileRevealService.reveal(session.logFilePath!),
         ),
         const SizedBox(width: 6),
         IconBadge(
           icon: Icons.content_copy_rounded,
           color: AppColors.idle,
           tooltip: '전체 복사',
-          onTap: () => Clipboard.setData(ClipboardData(text: session.displayText)),
+          onTap: () =>
+              Clipboard.setData(ClipboardData(text: session.displayText)),
         ),
         const SizedBox(width: 6),
         IconBadge(

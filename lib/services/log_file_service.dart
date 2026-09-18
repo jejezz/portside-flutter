@@ -9,12 +9,20 @@ class LogFileService {
   File? _file;
 
   bool get isLogging => _sink != null;
+
+  /// 지금 기록 중인 파일, 없으면(정지 후) 바로 이전에 기록했던 파일의 경로.
   String? get filePath => _file?.path;
 
   /// 기본 저장 폴더 — 없으면 만들어서 경로를 반환한다.
+  ///
+  /// 네이티브 Windows 프로세스(탐색기에서 실행 등)는 HOME이 아니라
+  /// USERPROFILE만 채워주므로, HOME이 비어 있으면 그쪽으로 넘어간다.
   static Future<String> defaultDirectory() async {
-    final home = Platform.environment['HOME'] ?? '.';
-    final dir = Directory('$home/Downloads/usb_to_com_logs');
+    final home =
+        Platform.environment['HOME'] ??
+        Platform.environment['USERPROFILE'] ??
+        '.';
+    final dir = Directory('$home/Downloads/portside_logs');
     await dir.create(recursive: true);
     return dir.path;
   }
@@ -25,7 +33,8 @@ class LogFileService {
     final safePort = portName.split('/').last;
     final now = DateTime.now();
     String two(int n) => n.toString().padLeft(2, '0');
-    final timestamp = '${now.year}${two(now.month)}${two(now.day)}_${two(now.hour)}${two(now.minute)}${two(now.second)}';
+    final timestamp =
+        '${now.year}${two(now.month)}${two(now.day)}_${two(now.hour)}${two(now.minute)}${two(now.second)}';
     return '${safePort}_$timestamp.log';
   }
 
@@ -44,7 +53,8 @@ class LogFileService {
   Future<void> stop() async {
     final sink = _sink;
     _sink = null;
-    _file = null;
+    // _file은 그대로 둔다 — "탐색기에서 보기" 버튼이 정지 직후에도 방금
+    // 기록한 파일 위치를 열 수 있어야 한다. 다음 start()가 덮어쓴다.
     if (sink != null) {
       await sink.flush();
       await sink.close();

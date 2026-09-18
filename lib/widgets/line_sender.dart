@@ -34,10 +34,16 @@ class _LineSenderState extends State<LineSender> {
       return KeyEventResult.ignored;
     }
     final isEnter =
-        event.logicalKey == LogicalKeyboardKey.enter || event.logicalKey == LogicalKeyboardKey.numpadEnter;
+        event.logicalKey == LogicalKeyboardKey.enter ||
+        event.logicalKey == LogicalKeyboardKey.numpadEnter;
     if (!isEnter) return KeyEventResult.ignored;
 
-    if (HardwareKeyboard.instance.isControlPressed) {
+    final connected =
+        context.read<TerminalSessionProvider>().status ==
+        ConnectionStatus.connected;
+    // 연결되지 않았을 때는 전송할 대상이 없으므로, Enter도 그냥 보통의
+    // 줄바꿈(CR/LF)으로만 동작해서 미리 스크립트를 자유롭게 써둘 수 있게 한다.
+    if (!connected || HardwareKeyboard.instance.isControlPressed) {
       _insertNewlineAtCursor();
     } else {
       _sendCurrentLine();
@@ -99,31 +105,33 @@ class _LineSenderState extends State<LineSender> {
     final connected = session.status == ConnectionStatus.connected;
 
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      // 부모(HomeScreen)가 이 위젯 전체에 드래그로 조절 가능한 높이를 주므로,
+      // 텍스트 입력 칸도 고정 84px 대신 그 높이에 맞춰 늘어나야 한다.
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: SizedBox(
-            height: 84,
-            child: Focus(
-              onKeyEvent: _onKeyEvent,
-              child: TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                enabled: connected,
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.top,
-                style: const TextStyle(fontFamily: 'monospace', fontSize: 13, color: AppColors.textHi),
-                decoration: InputDecoration(
-                  isDense: true,
-                  hintText: 'Enter: 커서 줄 전송 · Ctrl+Enter: 줄바꿈',
-                  contentPadding: const EdgeInsets.all(10),
-                  filled: true,
-                  fillColor: Colors.black.withValues(alpha: 0.28),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.tile),
-                    borderSide: BorderSide.none,
-                  ),
+          child: Focus(
+            onKeyEvent: _onKeyEvent,
+            child: TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              maxLines: null,
+              expands: true,
+              textAlignVertical: TextAlignVertical.top,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 13,
+                color: AppColors.textHi,
+              ),
+              decoration: InputDecoration(
+                isDense: true,
+                hintText: 'Enter: 커서 줄 전송 · Ctrl+Enter: 줄바꿈',
+                contentPadding: const EdgeInsets.all(10),
+                filled: true,
+                fillColor: Colors.black.withValues(alpha: 0.28),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(AppRadius.tile),
+                  borderSide: BorderSide.none,
                 ),
               ),
             ),
@@ -132,47 +140,60 @@ class _LineSenderState extends State<LineSender> {
         const SizedBox(width: 8),
         SizedBox(
           width: 132,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              DropdownButton<LineEnding>(
-                value: session.lineEnding,
-                isDense: true,
-                items: [
-                  for (final e in LineEnding.values) DropdownMenuItem(value: e, child: Text(e.label)),
-                ],
-                onChanged: (value) {
-                  if (value != null) session.setLineEnding(value);
-                },
-              ),
-              Tooltip(
-                message: '보낸 내용을 터미널 화면에도 표시',
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('Echo', style: TextStyle(fontSize: 12, color: AppColors.textMid)),
-                    const SizedBox(width: 4),
-                    Transform.scale(
-                      scale: 0.8,
-                      child: Switch(
-                        value: session.localEcho,
-                        activeTrackColor: AppColors.accent,
-                        onChanged: (value) => session.setLocalEcho(value),
-                      ),
-                    ),
+          // Row가 stretch라서 이 칸도 (드래그로 줄어든) 전체 높이만큼 tight하게
+          // 주어진다 — 내용물이 그보다 크면 그냥 균일 축소해서 오버플로를 막는다.
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.topRight,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                DropdownButton<LineEnding>(
+                  value: session.lineEnding,
+                  isDense: true,
+                  items: [
+                    for (final e in LineEnding.values)
+                      DropdownMenuItem(value: e, child: Text(e.label)),
                   ],
+                  onChanged: (value) {
+                    if (value != null) session.setLineEnding(value);
+                  },
                 ),
-              ),
-              IconBadge(
-                icon: Icons.send_rounded,
-                color: AppColors.primary,
-                active: connected,
-                size: 34,
-                tooltip: '현재 줄 전송',
-                onTap: connected ? _sendCurrentLine : null,
-              ),
-            ],
+                Tooltip(
+                  message: '보낸 내용을 터미널 화면에도 표시',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Echo',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textMid,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Transform.scale(
+                        scale: 0.8,
+                        child: Switch(
+                          value: session.localEcho,
+                          activeTrackColor: AppColors.accent,
+                          onChanged: (value) => session.setLocalEcho(value),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconBadge(
+                  icon: Icons.send_rounded,
+                  color: AppColors.primary,
+                  active: connected,
+                  size: 34,
+                  tooltip: '현재 줄 전송',
+                  onTap: connected ? _sendCurrentLine : null,
+                ),
+              ],
+            ),
           ),
         ),
       ],

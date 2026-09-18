@@ -44,14 +44,25 @@ class _TerminalViewState extends State<TerminalView> {
     final session = context.watch<TerminalSessionProvider>();
     final settings = context.watch<SettingsProvider>();
 
-    return xterm_ui.TerminalView(
-      session.terminal,
-      controller: _controller,
-      autofocus: true,
-      theme: settings.terminalTheme,
-      textStyle: settings.terminalStyle,
-      padding: const EdgeInsets.all(8),
-      onSecondaryTapDown: (details, offset) => _onSecondaryTapDown(details, session.terminal),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 창 리사이즈 중 잠깐이라도 높이/너비가 0이 되면 xterm2가 행/열 수를
+        // 계산하다가 오류를 내므로, 그 순간에는 아예 렌더링하지 않는다.
+        if (constraints.maxHeight <= 0 || constraints.maxWidth <= 0) {
+          return const SizedBox.shrink();
+        }
+
+        return xterm_ui.TerminalView(
+          session.terminal,
+          controller: _controller,
+          autofocus: true,
+          theme: settings.terminalTheme,
+          textStyle: settings.terminalStyle,
+          padding: const EdgeInsets.all(8),
+          onSecondaryTapDown: (details, offset) =>
+              _onSecondaryTapDown(details, session.terminal),
+        );
+      },
     );
   }
 }

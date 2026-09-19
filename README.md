@@ -41,6 +41,8 @@ git push origin v0.1.0
 
 서명/공증(Apple Developer Program, $99/년)을 안 했기 때문에, 받는 사람 Mac에서는 Gatekeeper가 "확인되지 않은 개발자" 경고를 띄운다 — 우클릭 후 "열기"로 한 번 우회하면 된다.
 
+Windows 인스톨러(`.exe`)는 이 워크플로에 아직 포함되어 있지 않다 — [docs/windows-installer.md](docs/windows-installer.md)의 절차대로 로컬에서 빌드해 같은 릴리즈에 수동으로 추가한다.
+
 ## 알려진 한계
 
 - 터미널 화면에 직접 타이핑할 때 한글 조합이 깨진다 — `xterm2`(정확히는 원조 `xterm.dart`)의 macOS 텍스트 입력 처리 버그. Line Sender 입력창은 일반 `TextField`라 영향 없음.

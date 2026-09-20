@@ -32,16 +32,16 @@ flutter run -d macos
 
 ## 릴리스 만들기
 
-`v` 로 시작하는 태그를 푸시하면 GitHub Actions(`.github/workflows/release.yml`)가 릴리스 빌드를 만들어 DMG로 패키징하고 GitHub Release에 올려준다.
+`v` 로 시작하는 태그를 푸시하면 GitHub Actions(`.github/workflows/release.yml`)가 macOS DMG와 Windows 인스톨러(`.exe`)를 각각 빌드해서 같은 GitHub Release에 올려준다.
 
 ```bash
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-서명/공증(Apple Developer Program, $99/년)을 안 했기 때문에, 받는 사람 Mac에서는 Gatekeeper가 "확인되지 않은 개발자" 경고를 띄운다 — 우클릭 후 "열기"로 한 번 우회하면 된다.
+서명/공증(Apple Developer Program, $99/년)을 안 했기 때문에, 받는 사람 Mac에서는 Gatekeeper가 "확인되지 않은 개발자" 경고를 띄운다 — 우클릭 후 "열기"로 한 번 우회하면 된다. Windows도 서명 인증서 없이 만들어서 SmartScreen이 비슷한 경고를 띄운다 — "추가 정보 → 실행"으로 넘어가면 된다.
 
-Windows 인스톨러(`.exe`)는 이 워크플로에 아직 포함되어 있지 않다 — [docs/windows-installer.md](docs/windows-installer.md)의 절차대로 로컬에서 빌드해 같은 릴리즈에 수동으로 추가한다.
+Windows 인스톨러를 로컬에서 직접 빌드/테스트하고 싶을 때는 [docs/windows-installer.md](docs/windows-installer.md)를 참고한다.
 
 ## 알려진 한계
 

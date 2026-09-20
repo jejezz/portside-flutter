@@ -8,7 +8,7 @@
 PRODUCT_NAME = Portside
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.jejezz.usbToCom
+PRODUCT_BUNDLE_IDENTIFIER = art.zoomon.portside
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.jejezz. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 art.zoomon. All rights reserved.

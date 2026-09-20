@@ -39,7 +39,7 @@ class PortsideAboutDialog extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'github.com/jejezz/usb-to-serial',
+              'github.com/jejezz/portside-flutter',
               style: TextStyle(fontSize: 12.5, color: AppColors.primary, fontWeight: FontWeight.w600),
             ),
           ],

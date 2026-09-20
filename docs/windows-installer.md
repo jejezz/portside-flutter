@@ -1,8 +1,8 @@
 # Windows 인스톨러 만들기
 
-`scripts/build-app-windows.ps1`은 `build\windows\x64\runner\Release\`에 실행 파일 폴더를 만들 뿐, 더블클릭 한 번으로 설치되는 인스톨러(`setup.exe`)는 만들지 않는다. 그 폴더를 실제 배포용 인스톨러로 패키징해서 GitHub 릴리즈에 올리는 절차를 수동으로 정리한 것이 이 문서다 — 자동화 스크립트는 일부러 만들지 않았다. 새 버전을 낼 때마다 아래 단계를 직접 따라간다.
+`scripts/build-app-windows.ps1`은 `build\windows\x64\runner\Release\`에 실행 파일 폴더를 만들 뿐, 더블클릭 한 번으로 설치되는 인스톨러(`setup.exe`)는 만들지 않는다. 그 폴더를 실제 배포용 인스톨러로 패키징하는 절차를 정리한 것이 이 문서다.
 
-macOS는 `v`로 시작하는 태그를 푸시하면 `.github/workflows/release.yml`이 DMG를 자동으로 빌드해서 같은 태그의 GitHub 릴리즈에 올려준다(README 참고). Windows는 아직 그 워크플로에 들어가 있지 않으므로, 이 문서 순서대로 로컬에서 인스톨러를 만들어 같은 릴리즈에 수동으로 추가한다.
+`v`로 시작하는 태그를 푸시하면 `.github/workflows/release.yml`의 `windows` 잡이 이 절차(빌드 → Inno Setup 컴파일)를 그대로 CI에서 실행해서 같은 태그의 GitHub 릴리즈에 인스톨러를 올려준다 — 새 버전을 낼 때 로컬에서 아래 단계를 직접 따라갈 필요는 없다. 이 문서는 인스톨러를 로컬에서 빌드해 배포 전에 미리 테스트하고 싶을 때, 또는 CI 없이 수동으로 릴리즈해야 할 때를 위한 절차다.
 
 **빌드 스크립트와 인스톨러 스크립트는 이미 저장소에 있다.** 새로 만들 필요 없이, 아래 파일을 그대로 쓴다.
 
@@ -33,7 +33,7 @@ winget install JRSoftware.InnoSetup
 
 ## 2. 버전 맞추기
 
-새 버전을 낼 때는 [`installer/windows/portside.iss`](../installer/windows/portside.iss) 맨 위의 `MyAppVersion`을 `pubspec.yaml`의 `version:`(빌드 번호 `+N`은 뺀 `major.minor.patch`만)과 맞춰서 바꾼다. 예: `version: 0.1.4+14` → `MyAppVersion "0.1.4"`.
+CI(`.github/workflows/release.yml`)는 태그 이름(예: `v0.1.4` → `0.1.4`)을 `ISCC /DMyAppVersion=...`로 넘겨서 버전을 자동으로 맞춘다. 로컬에서 수동으로 컴파일할 때만 [`installer/windows/portside.iss`](../installer/windows/portside.iss) 맨 위의 기본값 `MyAppVersion`을 `pubspec.yaml`의 `version:`(빌드 번호 `+N`은 뺀 `major.minor.patch`만)과 맞춰서 바꾼다. 예: `version: 0.1.4+14` → `MyAppVersion "0.1.4"`.
 
 `AppId`(고유 GUID)는 그 안에 이미 고정되어 있다 — 앱을 갈아엎는 게 아니라면 절대 바꾸지 않는다. 바꾸면 Windows가 이전 버전과 다른 앱으로 인식해서, 제어판 "프로그램 추가/제거"에서 업그레이드/제거가 깨진다.
 
@@ -43,7 +43,7 @@ winget install JRSoftware.InnoSetup
 & "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" installer\windows\portside.iss
 ```
 
-`dist\PortsideSetup-<version>.exe`가 만들어진다.
+`dist\PortsideSetup-<version>.exe`가 만들어진다. (특정 버전을 강제하려면 CI처럼 `/DMyAppVersion=0.1.4`를 덧붙인다.)
 
 ## 4. 설치 테스트
 
@@ -58,11 +58,11 @@ winget install JRSoftware.InnoSetup
 
 ## GitHub 릴리즈에 올리기
 
-빌드한 인스톨러(`.exe`)를 macOS 릴리즈와 같은 태그에 올린다.
+태그를 푸시하면 CI가 알아서 올려주므로, 보통은 이 섹션을 직접 따라갈 필요가 없다. CI 없이 수동으로 올려야 할 때만 아래 절차를 쓴다.
 
 **GitHub CLI로 (권장 — 설치돼 있지 않으면 `winget install GitHub.cli`)**
 
-macOS 릴리즈 워크플로(`.github/workflows/release.yml`)가 이미 그 태그의 릴리즈를 만들어 놓은 상태라면:
+macOS 릴리즈 잡(`.github/workflows/release.yml`의 `macos`)이 이미 그 태그의 릴리즈를 만들어 놓은 상태라면:
 
 ```powershell
 gh release upload v0.1.4 dist\PortsideSetup-0.1.4.exe

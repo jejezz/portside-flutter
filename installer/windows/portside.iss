@@ -1,11 +1,16 @@
 ; Inno Setup script for Portside.
 ;
-; Not run automatically by anything in scripts/ — see docs/windows-installer.md
-; for the manual steps (build the release folder first, bump MyAppVersion
-; below to match pubspec.yaml, then compile this file with ISCC.exe).
+; Run automatically by .github/workflows/release.yml's `windows` job on every
+; `v*.*.*` tag push. For local, manual compiles see docs/windows-installer.md
+; (build the release folder first, then compile this file with ISCC.exe).
 
 #define MyAppName "Portside"
-#define MyAppVersion "0.1.4"
+; CI passes the real version via `ISCC /DMyAppVersion=x.y.z` (see
+; .github/workflows/release.yml); this default is only used for local,
+; manual compiles per docs/windows-installer.md.
+#ifndef MyAppVersion
+  #define MyAppVersion "0.1.4"
+#endif
 #define MyAppExeName "portside.exe"
 #define SourceDir "..\..\build\windows\x64\runner\Release"
 

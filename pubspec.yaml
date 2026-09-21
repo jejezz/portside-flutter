@@ -1,7 +1,7 @@
 name: portside
 description: "Portside — 시리얼(USB-to-COM) 터미널"
 publish_to: 'none'
-version: 0.1.7+17
+version: 0.1.8+18
 
 environment:
   sdk: ^3.13.1

@@ -6,7 +6,7 @@ import '../theme/tokens.dart';
 class PortsideAboutDialog extends StatelessWidget {
   const PortsideAboutDialog({super.key});
 
-  static const version = '0.1.3';
+  static const version = '0.1.5';
 
   @override
   Widget build(BuildContext context) {

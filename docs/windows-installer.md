@@ -2,7 +2,7 @@
 
 `scripts/build-app-windows.ps1`은 `build\windows\x64\runner\Release\`에 실행 파일 폴더를 만들 뿐, 더블클릭 한 번으로 설치되는 인스톨러(`setup.exe`)는 만들지 않는다. 그 폴더를 실제 배포용 인스톨러로 패키징하는 절차를 정리한 것이 이 문서다.
 
-`v`로 시작하는 태그를 푸시하면 `.github/workflows/release.yml`의 `windows` 잡이 이 절차(빌드 → Inno Setup 컴파일)를 그대로 CI에서 실행해서 같은 태그의 GitHub 릴리즈에 인스톨러를 올려준다 — 새 버전을 낼 때 로컬에서 아래 단계를 직접 따라갈 필요는 없다. 이 문서는 인스톨러를 로컬에서 빌드해 배포 전에 미리 테스트하고 싶을 때, 또는 CI 없이 수동으로 릴리즈해야 할 때를 위한 절차다.
+`v`로 시작하는 태그를 푸시하면 `.github/workflows/release.yml`의 `build-windows` 잡이 이 절차(빌드 → Inno Setup 컴파일)를 그대로 CI에서 실행하고, macOS/Linux 빌드까지 모두 성공하면 마지막 `release` 잡이 한 번에 모아서 같은 태그의 GitHub 릴리즈에 올린다 — 새 버전을 낼 때 로컬에서 아래 단계를 직접 따라갈 필요는 없다. 이 문서는 인스톨러를 로컬에서 빌드해 배포 전에 미리 테스트하고 싶을 때, 또는 CI 없이 수동으로 릴리즈해야 할 때를 위한 절차다.
 
 **빌드 스크립트와 인스톨러 스크립트는 이미 저장소에 있다.** 새로 만들 필요 없이, 아래 파일을 그대로 쓴다.
 
@@ -62,7 +62,7 @@ CI(`.github/workflows/release.yml`)는 태그 이름(예: `v0.1.4` → `0.1.4`)�
 
 **GitHub CLI로 (권장 — 설치돼 있지 않으면 `winget install GitHub.cli`)**
 
-macOS 릴리즈 잡(`.github/workflows/release.yml`의 `macos`)이 이미 그 태그의 릴리즈를 만들어 놓은 상태라면:
+이미 그 태그의 릴리즈가 있다면(예: CI의 `release` 잡이 macOS/Linux까지는 만들어 놓은 상태):
 
 ```powershell
 gh release upload v0.1.4 dist\PortsideSetup-0.1.4.exe

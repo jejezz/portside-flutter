@@ -32,14 +32,14 @@ flutter run -d macos
 
 ## 릴리스 만들기
 
-`v` 로 시작하는 태그를 푸시하면 GitHub Actions(`.github/workflows/release.yml`)가 macOS DMG와 Windows 인스톨러(`.exe`)를 각각 빌드해서 같은 GitHub Release에 올려준다.
+`v` 로 시작하는 태그를 푸시하면 GitHub Actions(`.github/workflows/release.yml`)가 macOS DMG, Windows 인스톨러(`.exe`), Linux tarball(`.tar.gz`)을 각각 빌드해서 같은 GitHub Release에 올려준다.
 
 ```bash
 git tag v0.1.0
 git push origin v0.1.0
 ```
 
-서명/공증(Apple Developer Program, $99/년)을 안 했기 때문에, 받는 사람 Mac에서는 Gatekeeper가 "확인되지 않은 개발자" 경고를 띄운다 — 우클릭 후 "열기"로 한 번 우회하면 된다. Windows도 서명 인증서 없이 만들어서 SmartScreen이 비슷한 경고를 띄운다 — "추가 정보 → 실행"으로 넘어가면 된다.
+서명/공증(Apple Developer Program, $99/년)을 안 했기 때문에, 받는 사람 Mac에서는 Gatekeeper가 "확인되지 않은 개발자" 경고를 띄운다 — 우클릭 후 "열기"로 한 번 우회하면 된다. Windows도 서명 인증서 없이 만들어서 SmartScreen이 비슷한 경고를 띄운다 — "추가 정보 → 실행"으로 넘어가면 된다. Linux tarball은 `portside/` 폴더를 그대로 담고 있으며, 압축을 풀고 `portside/portside`를 실행하면 된다(설치 없이 실행 가능한 형태라 배포판 패키지 관리자에는 등록되어 있지 않다).
 
 Windows 인스톨러를 로컬에서 직접 빌드/테스트하고 싶을 때는 [docs/windows-installer.md](docs/windows-installer.md)를 참고한다.
 

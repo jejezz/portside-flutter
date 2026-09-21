@@ -1,7 +1,8 @@
 name: Release
 
-# v로 시작하는 태그를 푸시하면 (예: v0.1.0) macOS DMG, Windows 인스톨러,
-# Linux tarball을 각각 빌드해서 같은 태그의 GitHub Release에 올린다.
+# v로 시작하는 태그를 푸시하면 (예: v0.1.0) macOS DMG(서명/공증 포함),
+# Windows 인스톨러, Linux tarball을 각각 빌드해서 같은 태그의 GitHub
+# Release에 올린다.
 on:
   push:
     tags:
@@ -26,18 +27,51 @@ jobs:
       - name: Install native build tools
         run: brew install autoconf automake libtool pkg-config create-dmg
 
+      - name: Import Developer ID certificate
+        env:
+          MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+          MACOS_KEYCHAIN_PASSWORD: ${{ secrets.MACOS_KEYCHAIN_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
+          CERT_PATH="$RUNNER_TEMP/certificate.p12"
+
+          echo -n "$MACOS_CERTIFICATE_P12_BASE64" | base64 --decode -o "$CERT_PATH"
+
+          security create-keychain -p "$MACOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$MACOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security import "$CERT_PATH" -k "$KEYCHAIN_PATH" -P "$MACOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$MACOS_KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security list-keychains -d user -s "$KEYCHAIN_PATH" login.keychain
+
+          echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
+
       - run: flutter pub get
 
       - run: flutter build macos --release
+
+      - name: Sign app (Developer ID, hardened runtime)
+        run: |
+          APP_PATH="build/macos/Build/Products/Release/Portside.app"
+          IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" \
+            | grep "Developer ID Application" | head -1 | sed -E 's/.*"(.*)"/\1/')
+          test -n "$IDENTITY"
+
+          codesign --force --deep --options runtime \
+            --entitlements macos/Runner/Release.entitlements \
+            --sign "$IDENTITY" "$APP_PATH"
+
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
 
       - name: Package DMG
         run: |
           APP_PATH="build/macos/Build/Products/Release/Portside.app"
           DMG_PATH="Portside-${{ github.ref_name }}.dmg"
 
-          # create-dmg는 완성된 DMG를 만들고도 코드사이닝 관련 경고 때문에
-          # 종종 0이 아닌 종료 코드를 내는 걸로 알려져 있어서, 실패로 치지
-          # 않고 실제로 파일이 생겼는지로 판단한다.
+          # create-dmg는 완성된 DMG를 만들고도 이런저런 경고 때문에 종종
+          # 0이 아닌 종료 코드를 내는 걸로 알려져 있어서, 실패로 치지 않고
+          # 실제로 파일이 생겼는지로 판단한다.
           create-dmg \
             --volname "Portside" \
             --window-size 500 300 \
@@ -49,6 +83,22 @@ jobs:
           test -f "$DMG_PATH"
           echo "DMG_PATH=$DMG_PATH" >> "$GITHUB_ENV"
 
+      # APPLE_ID_PASSWORD는 계정 비밀번호가 아니라 appleid.apple.com에서
+      # 발급하는 앱 암호(app-specific password)여야 한다.
+      - name: Notarize DMG
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcrun notarytool submit "$DMG_PATH" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_ID_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+
+          xcrun stapler staple "$DMG_PATH"
+
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -56,6 +106,10 @@ jobs:
           gh release create "${{ github.ref_name }}" "$DMG_PATH" \
             --title "Portside ${{ github.ref_name }}" \
             --generate-notes
+
+      - name: Clean up keychain
+        if: always()
+        run: security delete-keychain "$KEYCHAIN_PATH" || true
 
   windows:
     runs-on: windows-latest

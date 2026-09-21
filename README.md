@@ -39,7 +39,7 @@ git tag v0.1.0
 git push origin v0.1.0
 ```
 
-서명/공증(Apple Developer Program, $99/년)을 안 했기 때문에, 받는 사람 Mac에서는 Gatekeeper가 "확인되지 않은 개발자" 경고를 띄운다 — 우클릭 후 "열기"로 한 번 우회하면 된다. Windows도 서명 인증서 없이 만들어서 SmartScreen이 비슷한 경고를 띄운다 — "추가 정보 → 실행"으로 넘어가면 된다. Linux tarball은 `portside/` 폴더를 그대로 담고 있으며, 압축을 풀고 `portside/portside`를 실행하면 된다(설치 없이 실행 가능한 형태라 배포판 패키지 관리자에는 등록되어 있지 않다).
+macOS DMG는 Developer ID로 서명하고 공증(notarize)까지 마친 뒤 올라가므로 Gatekeeper 경고 없이 바로 실행된다(필요한 인증서/자격 증명은 저장소 secrets에 등록되어 있다). Windows는 서명 인증서 없이 만들어서 SmartScreen이 "Windows에서 PC를 보호했습니다" 경고를 띄운다 — "추가 정보 → 실행"으로 넘어가면 된다. Linux tarball은 `portside/` 폴더를 그대로 담고 있으며, 압축을 풀고 `portside/portside`를 실행하면 된다(설치 없이 실행 가능한 형태라 배포판 패키지 관리자에는 등록되어 있지 않다).
 
 Windows 인스톨러를 로컬에서 직접 빌드/테스트하고 싶을 때는 [docs/windows-installer.md](docs/windows-installer.md)를 참고한다.
 

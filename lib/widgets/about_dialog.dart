@@ -7,7 +7,7 @@ import '../theme/tokens.dart';
 class PortsideAboutDialog extends StatelessWidget {
   const PortsideAboutDialog({super.key});
 
-  static const version = '0.1.8';
+  static const version = '0.1.9';
   static final _repoUrl = Uri.parse('https://github.com/jejezz/portside-flutter');
 
   static const _features = [

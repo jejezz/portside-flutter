@@ -1,13 +1,13 @@
 import 'dart:ui' show AppExitResponse;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'screens/home_screen.dart';
 import 'state/sessions_provider.dart';
 import 'state/settings_provider.dart';
 import 'theme/tokens.dart';
+import 'utils/app_shortcuts.dart';
 
 /// 메뉴/버튼/라벨용 Light 굵기 + 살짝 작은 크기 텍스트 테마. Material 기본
 /// 텍스트 테마는 두께가 Regular라 커스텀 폰트를 얹어도 밋밋해 보여서,
@@ -134,15 +134,15 @@ class _PortsideAppState extends State<PortsideApp> with WidgetsBindingObserver {
           // 단축키. 로깅 토글/새 탭/탭 닫기는 전부 "활성 탭" 기준이다.
           return CallbackShortcuts(
             bindings: {
-              const SingleActivator(LogicalKeyboardKey.keyR, meta: true, shift: true): () =>
+              AppShortcut.toggleLogging.activator: () =>
                   context.read<SessionsProvider>().active.toggleLogging(),
-              const SingleActivator(LogicalKeyboardKey.keyT, meta: true): () =>
+              AppShortcut.newTab.activator: () =>
                   context.read<SessionsProvider>().addSession(),
-              const SingleActivator(LogicalKeyboardKey.keyW, meta: true): () {
+              AppShortcut.closeTab.activator: () {
                 final sessions = context.read<SessionsProvider>();
                 sessions.closeSession(sessions.activeIndex);
               },
-              const SingleActivator(LogicalKeyboardKey.keyK, meta: true): () =>
+              AppShortcut.clearTerminal.activator: () =>
                   context.read<SessionsProvider>().active.clearTerminal(),
             },
             child: MaterialApp(

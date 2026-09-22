@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../state/sessions_provider.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
+import '../utils/app_shortcuts.dart';
+import 'about_dialog.dart';
 import 'glass_card.dart';
 
 /// 세션(탭) 목록을 보여주는 얇은 가로 바. 탭이 동적으로 추가/삭제돼서
@@ -44,8 +46,18 @@ class TabBarRow extends StatelessWidget {
           IconBadge(
             icon: Icons.add_rounded,
             color: AppColors.primary,
-            tooltip: '새 탭 (⌘T)',
+            tooltip: '새 탭 (${AppShortcut.newTab.label})',
             onTap: sessionsProvider.addSession,
+          ),
+          const SizedBox(width: 8),
+          IconBadge(
+            icon: Icons.info_outline_rounded,
+            color: AppColors.idle,
+            tooltip: 'Portside 정보',
+            onTap: () => showDialog<void>(
+              context: context,
+              builder: (_) => const PortsideAboutDialog(),
+            ),
           ),
           const SizedBox(width: 12),
         ],

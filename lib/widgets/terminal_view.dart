@@ -6,6 +6,7 @@ import 'package:xterm2/xterm.dart';
 
 import '../state/settings_provider.dart';
 import '../state/terminal_session_provider.dart';
+import '../utils/app_shortcuts.dart';
 
 /// 실제 터미널 렌더링/키보드(IME 포함) 입력은 xterm2의 [xterm_ui.TerminalView]가
 /// 전담한다. 한글 조합, backspace, 화살표/Ctrl 조합, ANSI 이스케이프 렌더링을
@@ -59,6 +60,12 @@ class _TerminalViewState extends State<TerminalView> {
           theme: settings.terminalTheme,
           textStyle: settings.terminalStyle,
           padding: const EdgeInsets.all(8),
+          // 앱 전역 단축키(Ctrl+Shift+T 등)는 xterm이 제어 문자로 보내버리기
+          // 전에 상위의 CallbackShortcuts로 넘긴다.
+          onKeyEvent: (_, event) =>
+              AppShortcut.all.any((s) => s.activator.accepts(event, HardwareKeyboard.instance))
+                  ? KeyEventResult.skipRemainingHandlers
+                  : KeyEventResult.ignored,
           onSecondaryTapDown: (details, offset) =>
               _onSecondaryTapDown(details, session.terminal),
         );

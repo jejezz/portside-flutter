@@ -1,10 +1,10 @@
 # Portside
 
-macOS 전용 USB-to-Serial(COM) 터미널. Flutter로 만들었다.
+Windows·macOS·Linux에서 쓰는 무료 USB-to-Serial(COM) 멀티탭 터미널. Flutter로 만들었다.
 
 ## 왜
 
-macOS에는 Windows처럼 무료 시리얼 터미널이 마땅치 않다. CoolTerm은 오래돼서 최신 macOS에서 더 이상 실행되지 않고, Termius는 시리얼 통신을 지원하지만 유료다. 그래서 직접 만들었다.
+OS를 가리지 않고 쓸 수 있는 가볍고 무료인 시리얼 터미널이 마땅치 않다. CoolTerm은 오래돼서 최신 macOS에서 더 이상 실행되지 않고, Termius는 시리얼 통신을 지원하지만 유료다. 그래서 직접 만들었다.
 
 ## 기능
 
@@ -13,21 +13,31 @@ macOS에는 Windows처럼 무료 시리얼 터미널이 마땅치 않다. CoolTe
 - 터미널 화면(`xterm2` 기반 — 한글 조합 제외한 IME, 256색/트루컬러 ANSI, 화살표·Ctrl 조합 지원)
 - **Line Sender** — 여러 줄을 미리 써두고 Enter로 한 줄씩 순서대로 전송, Ctrl+Enter로 줄바꿈
 - Hex View 토글
-- Output 로깅 — 시작 시 저장 위치/파일명을 직접 지정, 단축키(⌘⇧R)로 시작/정지
+- Output 로깅 — 시작 시 저장 위치/파일명을 직접 지정, 단축키로 시작/정지
 - 폰트/색상 테마(Solarized, Dracula, Nord, Gruvbox 등)·스크롤백 줄 수 설정, 재실행 후에도 유지
-- ⌘T(새 탭) / ⌘W(탭 닫기) / ⌘⇧R(로깅 토글) / ⌘K(화면 지우기)
+- 단축키
+
+  | 동작 | macOS | Windows / Linux |
+  |---|---|---|
+  | 새 탭 | ⌘T | Ctrl+Shift+T |
+  | 탭 닫기 | ⌘W | Ctrl+Shift+W |
+  | 로깅 시작/정지 | ⌘⇧R | Ctrl+Shift+R |
+  | 화면 지우기 | ⌘K | Ctrl+Shift+K |
+
+  Windows/Linux에서 Shift를 함께 쓰는 건, 그냥 Ctrl+W/K/T가 시리얼 장치 쪽 셸의 제어 문자라서 그대로 장치에 보내야 하기 때문이다.
 
 ## 요구 사항
 
-- macOS, Xcode 전체 설치(Command Line Tools만으로는 안 됨)
 - Flutter (stable 채널)
-- Homebrew `autoconf`/`automake`/`libtool`/`pkg-config` — `flutter_libserialport`가 CocoaPods로 `libserialport` C 라이브러리를 소스 빌드하는 데 필요
+- **macOS**: Xcode 전체 설치(Command Line Tools만으로는 안 됨), Homebrew `autoconf`/`automake`/`libtool`/`pkg-config` — `flutter_libserialport`가 CocoaPods로 `libserialport` C 라이브러리를 소스 빌드하는 데 필요
+- **Windows**: Visual Studio("C++를 사용한 데스크톱 개발" 워크로드)
+- **Linux**: `clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev` (Ubuntu 기준 `apt-get`으로 설치)
 
 ## 실행
 
 ```bash
 flutter pub get
-flutter run -d macos
+flutter run -d macos    # 또는 windows / linux
 ```
 
 ## 릴리스 만들기

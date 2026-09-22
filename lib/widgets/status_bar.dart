@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../services/file_reveal_service.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
+import '../utils/app_shortcuts.dart';
 import 'glass_card.dart';
 
 /// 바이트 카운트, 로깅 상태/제어, 전체 복사를 한 줄로 모아둔 상태 바.
@@ -40,7 +41,7 @@ class StatusBar extends StatelessWidget {
               : Icons.fiber_manual_record_rounded,
           color: session.isLogging ? AppColors.primary : AppColors.danger,
           active: session.isLogging,
-          tooltip: session.isLogging ? '기록 정지 (⌘⇧R)' : '기록 시작 (⌘⇧R)',
+          tooltip: session.isLogging ? '기록 정지 (${AppShortcut.toggleLogging.label})' : '기록 시작 (${AppShortcut.toggleLogging.label})',
           onTap: (connected || session.isLogging)
               ? () => session.toggleLogging()
               : null,
@@ -66,7 +67,7 @@ class StatusBar extends StatelessWidget {
         IconBadge(
           icon: Icons.clear_all_rounded,
           color: AppColors.idle,
-          tooltip: '화면 지우기 (⌘K)',
+          tooltip: '화면 지우기 (${AppShortcut.clearTerminal.label})',
           onTap: () => session.clearTerminal(),
         ),
       ],

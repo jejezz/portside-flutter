@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../theme/tokens.dart';
@@ -7,7 +8,6 @@ import '../theme/tokens.dart';
 class PortsideAboutDialog extends StatelessWidget {
   const PortsideAboutDialog({super.key});
 
-  static const version = '0.1.9';
   static final _repoUrl = Uri.parse('https://github.com/jejezz/portside-flutter');
 
   static const _features = [
@@ -44,7 +44,13 @@ class PortsideAboutDialog extends StatelessWidget {
             children: [
               const Text('USB-to-Serial(COM) 포트용 무료 멀티탭 시리얼 터미널', style: _body),
               const SizedBox(height: 4),
-              const Text('버전 $version', style: _strong),
+              // 버전은 pubspec.yaml → 빌드 메타데이터(Info.plist / exe 버전 리소스 /
+              // version.json)로 들어간 값을 런타임에 읽어서, 따로 맞춰줄 필요가 없다.
+              FutureBuilder<PackageInfo>(
+                future: PackageInfo.fromPlatform(),
+                builder: (context, snapshot) =>
+                    Text('버전 ${snapshot.data?.version ?? ''}', style: _strong),
+              ),
               const SizedBox(height: 12),
               const Text(
                 'Windows·macOS·Linux 어디서나 쓸 수 있는 가볍고 무료인 시리얼 터미널을 목표로 만들었습니다. '

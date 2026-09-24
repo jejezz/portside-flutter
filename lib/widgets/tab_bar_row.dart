@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../about/portside_about.dart';
 import '../l10n/app_localizations.dart';
-import '../settings/settings_menus.dart';
+import '../settings/portside_settings_menus.dart';
 import '../state/sessions_provider.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
@@ -53,8 +53,10 @@ class TabBarRow extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           // 앱 바 오른쪽 끝의 순서: 테마 | 언어 | 정보 (theming.md §3).
-          const ThemeMenuButton(),
-          const LanguageMenuButton(),
+          const ThemeMenuBadge(),
+          const SizedBox(width: 8),
+          const LanguageMenuBadge(),
+          const SizedBox(width: 8),
           IconBadge(
             icon: Icons.info_outline_rounded,
             color: PortsideColors.of(context).idle,

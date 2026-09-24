@@ -1,34 +1,161 @@
 name: Release
 
-# v로 시작하는 태그를 푸시하면 (예: v0.1.0) macOS DMG(서명/공증 포함),
-# Windows 인스톨러, Linux tarball을 각 잡에서 병렬로 빌드해 워크플로
-# 아티팩트로 올린 뒤, 마지막 release 잡이 셋 다 성공했을 때만 한 번에
-# 모아서 같은 태그의 GitHub Release를 만든다. 플랫폼 중 하나라도 실패하면
-# 릴리즈 자체가 생성되지 않아 일부만 올라간 릴리즈가 남지 않는다.
+# From jejezz/application-release-templates desktop/ @ conventions-v1.
+# Validated end-to-end (including macOS signing/notarization) on Portside and
+# Dove Zip before being generalized here. See this template's README before
+# wiring it up in a new app, and conventions/ for the rules it implements.
+#
+# Needs the macos/, windows/, and linux/ platform folders — if they don't
+# exist yet, run `flutter create --platforms=macos,windows,linux .` in the
+# project root first.
+#
+# Push a `vX.Y.Z` (or `vX.Y.Z-rc.N`) tag to:
+#   1. check  — the tag must equal pubspec.yaml's version, and every
+#               translation must be present (conventions/versioning.md,
+#               localization.md)
+#   2. build  — macOS / Windows / Linux in parallel
+#   3. release — only once all three succeed, one GitHub Release with every
+#               asset plus SHA256SUMS.txt. If any build fails, nothing is
+#               published.
+#
+# workflow_dispatch runs steps 1–2 only (build check); it never creates a
+# Release (conventions/tagging.md §3).
 on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
 
-permissions:
-  contents: write
+env:
+  # Pin Flutter so re-running a tag rebuilds the same thing
+  # (conventions/workflow.md §3). Bump it in a PR.
+  FLUTTER_VERSION: "3.47.1"
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      display_name: ${{ steps.meta.outputs.display_name }}
+      file_name: ${{ steps.meta.outputs.file_name }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Names come from conventions/identity.md §2: the display name's single
+      # source is PRODUCT_NAME in macos/Runner/Configs/AppInfo.xcconfig
+      # (pubspec.yaml's `name` is the snake_case package id), and the file
+      # name is the display name without spaces.
+      - name: Read version and names
+        id: meta
+        run: |
+          PUBSPEC_VERSION=$(grep '^version:' pubspec.yaml | head -1 | sed -E 's/^version:[[:space:]]*([^+[:space:]]+).*/\1/')
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            if [ "$VERSION" != "$PUBSPEC_VERSION" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match pubspec.yaml version $PUBSPEC_VERSION"
+              exit 1
+            fi
+          else
+            VERSION="$PUBSPEC_VERSION"
+          fi
+
+          # Apps with a second manifest (e.g. a Rust crate next to the Flutter
+          # app) must bump it in the same release commit.
+          if [ -f Cargo.toml ]; then
+            CARGO_VERSION=$(grep -m1 -E '^version[[:space:]]*=' Cargo.toml | sed -E 's/.*"(.*)".*/\1/')
+            if [ "$CARGO_VERSION" != "$PUBSPEC_VERSION" ]; then
+              echo "::error::Cargo.toml version $CARGO_VERSION does not match pubspec.yaml version $PUBSPEC_VERSION"
+              exit 1
+            fi
+          fi
+
+          DISPLAY_NAME=$(grep '^PRODUCT_NAME' macos/Runner/Configs/AppInfo.xcconfig | head -1 | sed -E 's/^PRODUCT_NAME[[:space:]]*=[[:space:]]*//' | tr -d '\r')
+          test -n "$DISPLAY_NAME"
+          FILE_NAME=$(printf '%s' "$DISPLAY_NAME" | tr -cd '[:alnum:]')
+
+          # lib/app_identity.dart (common/ template) repeats the display name
+          # for the About dialog — keep the two from drifting apart.
+          if [ -f lib/app_identity.dart ] && ! grep -qF "displayName = '$DISPLAY_NAME'" lib/app_identity.dart; then
+            echo "::error::lib/app_identity.dart displayName does not match PRODUCT_NAME \"$DISPLAY_NAME\""
+            exit 1
+          fi
+
+          case "$VERSION" in *-*) PRERELEASE=true ;; *) PRERELEASE=false ;; esac
+
+          {
+            echo "version=$VERSION"
+            echo "display_name=$DISPLAY_NAME"
+            echo "file_name=$FILE_NAME"
+            echo "prerelease=$PRERELEASE"
+          } >> "$GITHUB_OUTPUT"
+          echo "$DISPLAY_NAME $VERSION → $FILE_NAME-$VERSION-* (prerelease: $PRERELEASE)"
+
+      # conventions/readme-guide.md — a real release needs a finished README
+      # (no TODOs, real images). A pre-release tag (vX.Y.Z-rc.N) — e.g. the
+      # first pipeline run before any feature exists — only needs its
+      # structure (tagging.md §1).
+      - name: README follows conventions
+        if: hashFiles('tool/readme/check_readme.py') != ''
+        run: |
+          if [ "${{ steps.meta.outputs.prerelease }}" = "true" ]; then
+            python3 tool/readme/check_readme.py --stage bootstrap
+          else
+            python3 tool/readme/check_readme.py
+          fi
+
+      - uses: subosito/flutter-action@v2
+        if: hashFiles('l10n.yaml') != ''
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      # Needs `untranslated-messages-file: build/untranslated.json` in
+      # l10n.yaml (conventions/localization.md §2). gen-l10n writes `{}` (or
+      # nothing) when every locale has every key.
+      - name: Every translation present
+        if: hashFiles('l10n.yaml') != ''
+        run: |
+          flutter pub get
+          # gen-l10n won't create the directory for the report itself.
+          mkdir -p build
+          flutter gen-l10n
+          if [ -s build/untranslated.json ] && [ "$(tr -d '[:space:]' < build/untranslated.json)" != "{}" ]; then
+            echo "::error::Untranslated messages:"
+            cat build/untranslated.json
+            exit 1
+          fi
+
   build-macos:
-    runs-on: macos-latest
+    needs: check
+    # Name the runner explicitly — macos-latest changes Xcode SDKs without
+    # notice (conventions/workflow.md §3).
+    runs-on: macos-26
+    env:
+      FILE_NAME: ${{ needs.check.outputs.file_name }}
+      VERSION: ${{ needs.check.outputs.version }}
+      DISPLAY_NAME: ${{ needs.check.outputs.display_name }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.47.1"
-          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
       # flutter_libserialport가 CocoaPods로 libserialport C 라이브러리를
-      # 소스 빌드하는 데 필요 (README 참고).
+      # 소스 빌드하는 데 autoconf/automake/libtool/pkg-config가 필요하다.
       - name: Install native build tools
         run: brew install autoconf automake libtool pkg-config create-dmg
 
+      - run: flutter pub get
+
+      - run: flutter build macos --release
+
+      # Requires the MACOS_CERTIFICATE_* / MACOS_KEYCHAIN_PASSWORD secrets
+      # (see README). Without a Developer ID certificate yet, delete this
+      # step, "Sign app" and "Notarize DMG" — the DMG then ships ad-hoc
+      # signed and Gatekeeper warns "unidentified developer" on first launch.
       - name: Import Developer ID certificate
         env:
           MACOS_CERTIFICATE_P12_BASE64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
@@ -49,33 +176,32 @@ jobs:
 
           echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
 
-      - run: flutter pub get
-
-      - run: flutter build macos --release
-
       - name: Sign app (Developer ID, hardened runtime)
         run: |
-          APP_PATH="build/macos/Build/Products/Release/Portside.app"
+          APP_PATH="build/macos/Build/Products/Release/$(ls build/macos/Build/Products/Release | grep '\.app$' | head -1)"
           IDENTITY=$(security find-identity -v -p codesigning "$KEYCHAIN_PATH" \
             | grep "Developer ID Application" | head -1 | sed -E 's/.*"(.*)"/\1/')
           test -n "$IDENTITY"
 
-          codesign --force --deep --options runtime \
+          codesign --force --deep --options runtime --timestamp \
             --entitlements macos/Runner/Release.entitlements \
             --sign "$IDENTITY" "$APP_PATH"
 
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
 
+      # conventions/packaging.md §1: <FileName>-<version>-macos-universal.dmg
+      # (Flutter's release build is universal by default; if a native
+      # dependency limits it to one architecture, write that instead).
       - name: Package DMG
         run: |
-          APP_PATH="build/macos/Build/Products/Release/Portside.app"
-          DMG_PATH="Portside-${{ github.ref_name }}.dmg"
+          APP_PATH="build/macos/Build/Products/Release/$(ls build/macos/Build/Products/Release | grep '\.app$' | head -1)"
+          DMG_PATH="${FILE_NAME}-${VERSION}-macos-universal.dmg"
 
-          # create-dmg는 완성된 DMG를 만들고도 이런저런 경고 때문에 종종
-          # 0이 아닌 종료 코드를 내는 걸로 알려져 있어서, 실패로 치지 않고
-          # 실제로 파일이 생겼는지로 판단한다.
+          # create-dmg is known to sometimes exit non-zero over unrelated
+          # warnings even after producing a working DMG, so don't treat that
+          # as failure — just check the file actually got created.
           create-dmg \
-            --volname "Portside" \
+            --volname "$DISPLAY_NAME" \
             --window-size 500 300 \
             --icon-size 100 \
             --app-drop-link 380 120 \
@@ -85,8 +211,8 @@ jobs:
           test -f "$DMG_PATH"
           echo "DMG_PATH=$DMG_PATH" >> "$GITHUB_ENV"
 
-      # APPLE_ID_PASSWORD는 계정 비밀번호가 아니라 appleid.apple.com에서
-      # 발급하는 앱 암호(app-specific password)여야 한다.
+      # APPLE_ID_PASSWORD must be an app-specific password generated at
+      # appleid.apple.com — your regular account password will not work.
       - name: Notarize DMG
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -112,50 +238,78 @@ jobs:
           if-no-files-found: error
 
   build-windows:
+    needs: check
     runs-on: windows-latest
+    env:
+      FILE_NAME: ${{ needs.check.outputs.file_name }}
+      VERSION: ${{ needs.check.outputs.version }}
+      DISPLAY_NAME: ${{ needs.check.outputs.display_name }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.47.1"
-          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
       - run: flutter pub get
 
+      # portside의 빌드 래퍼 (docs/windows-installer.md가 가리키는 단계).
       - name: Build Windows release
         run: .\scripts\build-app-windows.ps1
 
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 
+      # Everything installer/windows/app.iss needs is passed in, so only
+      # AppId (a GUID) and the repository URL are edited by hand there.
       - name: Package installer
+        shell: bash
+        # Git Bash would treat ISCC's /D... switches as POSIX paths and
+        # rewrite them into Windows paths, so ISCC sees extra script file
+        # names ("You may not specify more than one script filename"). Pass
+        # the arguments through unchanged.
+        env:
+          MSYS_NO_PATHCONV: "1"
+          MSYS2_ARG_CONV_EXCL: "*"
         run: |
-          $version = "${{ github.ref_name }}".TrimStart('v')
+          # tr: the Windows checkout may have CRLF line endings.
+          BINARY_NAME=$(grep -oE 'set\(BINARY_NAME "[^"]+"\)' windows/CMakeLists.txt | sed -E 's/.*"(.*)".*/\1/' | tr -d '\r')
+          test -n "$BINARY_NAME"
 
-          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" `
-            "/DMyAppVersion=$version" `
-            installer\windows\portside.iss
+          # VersionInfoVersion only takes digits: 1.5.0-rc.1 -> 1.5.0
+          "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" \
+            "/DMyAppName=$DISPLAY_NAME" \
+            "/DMyFileName=$FILE_NAME" \
+            "/DMyAppVersion=$VERSION" \
+            "/DMyAppNumericVersion=${VERSION%%-*}" \
+            "/DMyAppExeName=$BINARY_NAME.exe" \
+            installer/windows/app.iss
 
       - uses: actions/upload-artifact@v4
         with:
           name: windows-installer
-          path: dist/PortsideSetup-*.exe
+          path: dist/*-windows-x64-setup.exe
           if-no-files-found: error
 
   build-linux:
+    needs: check
     runs-on: ubuntu-latest
+    env:
+      FILE_NAME: ${{ needs.check.outputs.file_name }}
+      VERSION: ${{ needs.check.outputs.version }}
+      DISPLAY_NAME: ${{ needs.check.outputs.display_name }}
     steps:
       - uses: actions/checkout@v4
 
       - uses: subosito/flutter-action@v2
         with:
-          flutter-version: "3.47.1"
-          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
 
-      # Flutter Linux desktop 빌드에 필요한 표준 도구 체인(flutter doctor
-      # 권장 목록). flutter_libserialport는 CMake로 libserialport를 소스
-      # 빌드하므로 추가 시스템 패키지는 필요 없다.
+      # Standard toolchain flutter doctor recommends for Linux desktop
+      # builds. flutter_libserialport builds libserialport with CMake, so no
+      # extra packages are needed.
       - name: Install native build tools
         run: |
           sudo apt-get update
@@ -165,34 +319,88 @@ jobs:
 
       - run: flutter build linux --release
 
+      # conventions/packaging.md §4: the bundle plus an icon, a .desktop
+      # entry and linux/install.sh, which puts the app under ~/.local so it
+      # shows up in the desktop's app launcher.
       - name: Package tarball
         run: |
-          STAGE_DIR="portside"
+          BINARY_NAME=$(grep -oE 'set\(BINARY_NAME "[^"]+"\)' linux/CMakeLists.txt | sed -E 's/.*"(.*)".*/\1/')
+          APP_ID=$(grep -oE 'set\(APPLICATION_ID "[^"]+"\)' linux/CMakeLists.txt | sed -E 's/.*"(.*)".*/\1/')
+          test -n "$BINARY_NAME"
+          test -n "$APP_ID"
+          case "$APP_ID" in com.example.*) echo "::error::linux/CMakeLists.txt APPLICATION_ID is still $APP_ID (conventions/identity.md §3)"; exit 1 ;; esac
+
+          # 512px, written by common/tool/icon/generate_icons.py.
+          ICON=linux/runner/resources/app_icon.png
+          test -f "$ICON" || { echo "::error::$ICON missing — run tool/icon/generate_icons.py"; exit 1; }
+
+          STAGE_DIR="$FILE_NAME"
           rm -rf "$STAGE_DIR"
           cp -r build/linux/x64/release/bundle "$STAGE_DIR"
 
-          tar czf "Portside-${{ github.ref_name }}-linux-x64.tar.gz" "$STAGE_DIR"
+          mkdir -p "$STAGE_DIR/share/icons/hicolor/512x512/apps" "$STAGE_DIR/share/applications"
+          cp "$ICON" "$STAGE_DIR/share/icons/hicolor/512x512/apps/$APP_ID.png"
+
+          # The .desktop file's name must equal APPLICATION_ID so GNOME ties
+          # the running window to it (StartupWMClass).
+          cat > "$STAGE_DIR/share/applications/$APP_ID.desktop" <<EOF
+          [Desktop Entry]
+          Type=Application
+          Name=$DISPLAY_NAME
+          Exec="@INSTALL_DIR@/$BINARY_NAME"
+          Icon=$APP_ID
+          StartupWMClass=$APP_ID
+          Terminal=false
+          Categories=Utility;
+          EOF
+          sed -i 's/^[[:space:]]*//' "$STAGE_DIR/share/applications/$APP_ID.desktop"
+
+          sed -e "s|@FILE_NAME@|$FILE_NAME|g" -e "s|@APP_ID@|$APP_ID|g" \
+            linux/install.sh > "$STAGE_DIR/install.sh"
+          chmod +x "$STAGE_DIR/install.sh"
+
+          tar czf "${FILE_NAME}-${VERSION}-linux-x64.tar.gz" "$STAGE_DIR"
 
       - uses: actions/upload-artifact@v4
         with:
           name: linux-tarball
-          path: Portside-*-linux-x64.tar.gz
+          path: "*-linux-x64.tar.gz"
           if-no-files-found: error
 
   release:
+    # Tag pushes only — a manual run is a build check (conventions/tagging.md §3).
+    if: github.ref_type == 'tag'
     runs-on: ubuntu-latest
-    needs: [build-macos, build-windows, build-linux]
+    needs: [check, build-macos, build-windows, build-linux]
+    permissions:
+      contents: write
     steps:
+      # For .github/release-notes-header.md.
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
 
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      # Title "<Display Name> vX.Y.Z"; notes = the install-guide header
+      # followed by GitHub's generated PR list (conventions/workflow.md §4).
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          DISPLAY_NAME: ${{ needs.check.outputs.display_name }}
+          PRERELEASE: ${{ needs.check.outputs.prerelease }}
         run: |
-          gh release create "${{ github.ref_name }}" dist/* \
-            --title "Portside ${{ github.ref_name }}" \
-            --generate-notes
+          ARGS=(--title "$DISPLAY_NAME $GITHUB_REF_NAME" --generate-notes)
+          if [ -f .github/release-notes-header.md ]; then
+            ARGS+=(--notes-file .github/release-notes-header.md)
+          fi
+          if [ "$PRERELEASE" = "true" ]; then
+            ARGS+=(--prerelease)
+          fi
+          gh release create "$GITHUB_REF_NAME" dist/* "${ARGS[@]}"

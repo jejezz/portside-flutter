@@ -75,6 +75,8 @@ class _SessionBodyState extends State<_SessionBody> {
   @override
   Widget build(BuildContext context) {
     final session = context.watch<TerminalSessionProvider>();
+    final colors = PortsideColors.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final connected = session.status == ConnectionStatus.connected;
     final canConnect =
         !connected &&
@@ -150,7 +152,7 @@ class _SessionBodyState extends State<_SessionBody> {
                     const Spacer(),
                     IconBadge(
                       icon: Icons.help_outline_rounded,
-                      color: AppColors.idle,
+                      color: colors.idle,
                       size: 32,
                       tooltip: '도움말',
                       onTap: () => showDialog<void>(
@@ -161,7 +163,7 @@ class _SessionBodyState extends State<_SessionBody> {
                     const SizedBox(width: 8),
                     IconBadge(
                       icon: Icons.settings_rounded,
-                      color: AppColors.idle,
+                      color: colors.idle,
                       size: 32,
                       tooltip: '폰트 / 테마',
                       onTap: () => showDialog<void>(
@@ -192,8 +194,8 @@ class _SessionBodyState extends State<_SessionBody> {
                       Expanded(
                         child: Text(
                           session.errorMessage ?? '알 수 없는 오류',
-                          style: const TextStyle(
-                            color: AppColors.textHi,
+                          style: TextStyle(
+                            color: scheme.onSurface,
                             fontSize: 13,
                           ),
                         ),
@@ -222,12 +224,13 @@ class _SessionBodyState extends State<_SessionBody> {
                             : const HexView(),
                       ),
                       if (connected)
-                        const Positioned(
+                        Positioned(
                           top: 10,
                           right: 10,
                           child: StatusPill(
                             label: 'CONNECTED',
                             color: AppColors.success,
+                            textColor: colors.successText,
                           ),
                         ),
                     ],
@@ -290,7 +293,7 @@ class _ResizeDivider extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: AppColors.idle.withValues(alpha: 0.4),
+                color: PortsideColors.of(context).idle.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),

@@ -14,10 +14,21 @@ class SettingsProvider extends ChangeNotifier {
     _load();
   }
 
-  static const _kFontSizeKey = 'font_size';
-  static const _kFontFamilyKey = 'font_family';
-  static const _kThemeKey = 'theme';
-  static const _kScrollbackLinesKey = 'scrollback_lines';
+  // 앱 고유 설정은 <기능>_<이름> (localization.md §5). 터미널 색 구성표는
+  // 앱 테마(theme_mode)와 별개라서 terminal_palette로 둔다 (theming.md §1).
+  static const _kFontSizeKey = 'terminal_font_size';
+  static const _kFontFamilyKey = 'terminal_font_family';
+  static const _kThemeKey = 'terminal_palette';
+  static const _kScrollbackLinesKey = 'terminal_scrollback_lines';
+
+  /// 0.1.9까지 쓰던 키 → 새 키. 키만 바꾸면 사용자 설정이 사라지므로 처음
+  /// 실행할 때 한 번 옮긴다.
+  static const legacyKeys = {
+    'font_size': _kFontSizeKey,
+    'font_family': _kFontFamilyKey,
+    'theme': _kThemeKey,
+    'scrollback_lines': _kScrollbackLinesKey,
+  };
 
   double _fontSize = 14;
   String _fontFamily = kFontFamilies.first;
@@ -31,8 +42,27 @@ class SettingsProvider extends ChangeNotifier {
   TerminalStyle get terminalStyle => TerminalStyle(fontSize: _fontSize, fontFamily: _fontFamily);
   TerminalTheme get terminalTheme => _appTheme.theme;
 
+  static Future<void> _migrateLegacyKeys(SharedPreferences prefs) async {
+    for (final MapEntry(key: old, value: current) in legacyKeys.entries) {
+      final value = prefs.get(old);
+      if (value == null) continue;
+      if (!prefs.containsKey(current)) {
+        switch (value) {
+          case double v:
+            await prefs.setDouble(current, v);
+          case int v:
+            await prefs.setInt(current, v);
+          case String v:
+            await prefs.setString(current, v);
+        }
+      }
+      await prefs.remove(old);
+    }
+  }
+
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
+    await _migrateLegacyKeys(prefs);
     _fontSize = prefs.getDouble(_kFontSizeKey) ?? _fontSize;
     _fontFamily = prefs.getString(_kFontFamilyKey) ?? _fontFamily;
     _scrollbackLines = prefs.getInt(_kScrollbackLinesKey) ?? _scrollbackLines;

@@ -65,7 +65,7 @@ class _BaudRateSelectorState extends State<BaudRateSelector> {
               errorText: _errorText,
               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
               filled: true,
-              fillColor: Colors.black.withValues(alpha: 0.28),
+              fillColor: PortsideColors.of(context).inset,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.tile),
                 borderSide: BorderSide.none,

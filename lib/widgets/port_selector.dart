@@ -69,7 +69,7 @@ class _PortSelectorState extends State<PortSelector> {
               hintText: '포트',
               contentPadding: const EdgeInsets.symmetric(vertical: 8),
               filled: true,
-              fillColor: Colors.black.withValues(alpha: 0.28),
+              fillColor: PortsideColors.of(context).inset,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.tile),
                 borderSide: BorderSide.none,
@@ -95,7 +95,7 @@ class _PortSelectorState extends State<PortSelector> {
         ),
         IconBadge(
           icon: Icons.refresh_rounded,
-          color: AppColors.idle,
+          color: PortsideColors.of(context).idle,
           size: 34,
           tooltip: '포트 새로고침',
           onTap: widget.enabled ? _refresh : null,

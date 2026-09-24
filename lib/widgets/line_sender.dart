@@ -103,6 +103,7 @@ class _LineSenderState extends State<LineSender> {
   Widget build(BuildContext context) {
     final session = context.watch<TerminalSessionProvider>();
     final connected = session.status == ConnectionStatus.connected;
+    final scheme = Theme.of(context).colorScheme;
 
     return Row(
       // 부모(HomeScreen)가 이 위젯 전체에 드래그로 조절 가능한 높이를 주므로,
@@ -118,17 +119,13 @@ class _LineSenderState extends State<LineSender> {
               maxLines: null,
               expands: true,
               textAlignVertical: TextAlignVertical.top,
-              style: const TextStyle(
-                fontFamily: 'monospace',
-                fontSize: 13,
-                color: AppColors.textHi,
-              ),
+              style: AppFonts.mono.copyWith(fontSize: 13, color: scheme.onSurface),
               decoration: InputDecoration(
                 isDense: true,
                 hintText: 'Enter: 커서 줄 전송 · Ctrl+Enter: 줄바꿈',
                 contentPadding: const EdgeInsets.all(10),
                 filled: true,
-                fillColor: Colors.black.withValues(alpha: 0.28),
+                fillColor: PortsideColors.of(context).inset,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(AppRadius.tile),
                   borderSide: BorderSide.none,
@@ -165,11 +162,11 @@ class _LineSenderState extends State<LineSender> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Text(
+                      Text(
                         'Echo',
                         style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textMid,
+                          color: scheme.onSurfaceVariant,
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -186,7 +183,7 @@ class _LineSenderState extends State<LineSender> {
                 ),
                 IconBadge(
                   icon: Icons.send_rounded,
-                  color: AppColors.primary,
+                  color: scheme.primary,
                   active: connected,
                   size: 34,
                   tooltip: '현재 줄 전송',

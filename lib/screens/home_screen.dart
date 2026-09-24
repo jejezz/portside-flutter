@@ -218,7 +218,10 @@ class _SessionBodyState extends State<_SessionBody> {
                     ConnectionStatus.disconnected => null,
                   },
                   active: session.status == ConnectionStatus.connected,
+                  // expand: Hex View는 내용 높이만큼만 커져서, 바이트가 적으면
+                  // 아래가 빈 채로 남았다 — 카드 안을 항상 꽉 채운다.
                   child: Stack(
+                    fit: StackFit.expand,
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(AppRadius.tile),

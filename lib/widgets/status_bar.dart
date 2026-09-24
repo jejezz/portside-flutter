@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/file_reveal_service.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
@@ -18,11 +21,13 @@ class StatusBar extends StatelessWidget {
     final session = context.watch<TerminalSessionProvider>();
     final connected = session.status == ConnectionStatus.connected;
     final colors = PortsideColors.of(context);
+    final l10n = AppLocalizations.of(context);
+    final loggingKey = AppShortcut.toggleLogging.label;
 
     return Row(
       children: [
         Text(
-          '${session.byteCount} bytes',
+          l10n.statusBytes(session.byteCount),
           style: TextStyle(
             fontSize: 12.5,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
@@ -32,7 +37,7 @@ class StatusBar extends StatelessWidget {
         const SizedBox(width: 10),
         if (session.isLogging)
           StatusPill(
-            label: '기록 중 · ${session.logFilePath?.split('/').last ?? ''}',
+            label: l10n.statusLogging(session.logFilePath?.split(Platform.pathSeparator).last ?? ''),
             color: AppColors.danger,
             textColor: colors.dangerText,
           ),
@@ -43,16 +48,16 @@ class StatusBar extends StatelessWidget {
               : Icons.fiber_manual_record_rounded,
           color: session.isLogging ? Theme.of(context).colorScheme.primary : AppColors.danger,
           active: session.isLogging,
-          tooltip: session.isLogging ? '기록 정지 (${AppShortcut.toggleLogging.label})' : '기록 시작 (${AppShortcut.toggleLogging.label})',
+          tooltip: session.isLogging ? l10n.statusStopLogging(loggingKey) : l10n.statusStartLogging(loggingKey),
           onTap: (connected || session.isLogging)
-              ? () => session.toggleLogging()
+              ? () => session.toggleLogging(confirmButtonText: l10n.logSaveConfirm)
               : null,
         ),
         const SizedBox(width: 6),
         IconBadge(
           icon: Icons.folder_open_rounded,
           color: colors.idle,
-          tooltip: session.logFilePath == null ? '기록된 로그 파일 없음' : '기록 파일 위치 열기',
+          tooltip: session.logFilePath == null ? l10n.statusNoLogFile : l10n.statusRevealLogFile,
           onTap: session.logFilePath == null
               ? null
               : () => FileRevealService.reveal(session.logFilePath!),
@@ -61,7 +66,7 @@ class StatusBar extends StatelessWidget {
         IconBadge(
           icon: Icons.content_copy_rounded,
           color: colors.idle,
-          tooltip: '전체 복사',
+          tooltip: l10n.statusCopyAll,
           onTap: () =>
               Clipboard.setData(ClipboardData(text: session.displayText)),
         ),
@@ -69,7 +74,7 @@ class StatusBar extends StatelessWidget {
         IconBadge(
           icon: Icons.clear_all_rounded,
           color: colors.idle,
-          tooltip: '화면 지우기 (${AppShortcut.clearTerminal.label})',
+          tooltip: l10n.statusClear(AppShortcut.clearTerminal.label),
           onTap: () => session.clearTerminal(),
         ),
       ],

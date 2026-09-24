@@ -37,5 +37,133 @@
   "aboutFeature3": "ANSI 256색/트루컬러 터미널, 화살표·Ctrl 조합 입력",
   "aboutFeature4": "Line Sender — 미리 써둔 여러 줄을 Enter로 한 줄씩 전송",
   "aboutFeature5": "Hex View 토글, 탭별 Output 로깅",
-  "aboutFeature6": "폰트·색상 테마·스크롤백 설정 저장"
+  "aboutFeature6": "폰트·색상 테마·스크롤백 설정 저장",
+  "toolbarConnect": "연결",
+  "toolbarDisconnect": "연결 끊기",
+  "toolbarViewTerminal": "터미널",
+  "toolbarViewHex": "Hex",
+  "toolbarHelp": "도움말",
+  "toolbarSettings": "터미널 설정",
+  "portHint": "포트",
+  "portRefresh": "포트 새로고침",
+  "baudHint": "보드레이트",
+  "baudInvalid": "양의 정수를 입력하세요",
+  "baudPresets": "흔한 보드레이트",
+  "tabNewSession": "새 세션",
+  "tabNew": "새 탭 ({shortcut})",
+  "@tabNew": {
+    "placeholders": {
+      "shortcut": {
+        "type": "String"
+      }
+    }
+  },
+  "statusConnected": "연결됨",
+  "statusBytes": "{count}바이트",
+  "@statusBytes": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "statusLogging": "기록 중 · {file}",
+  "@statusLogging": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "statusStartLogging": "기록 시작 ({shortcut})",
+  "@statusStartLogging": {
+    "placeholders": {
+      "shortcut": {
+        "type": "String"
+      }
+    }
+  },
+  "statusStopLogging": "기록 정지 ({shortcut})",
+  "@statusStopLogging": {
+    "placeholders": {
+      "shortcut": {
+        "type": "String"
+      }
+    }
+  },
+  "statusNoLogFile": "기록된 로그 파일 없음",
+  "statusRevealLogFile": "기록 파일 위치 열기",
+  "statusCopyAll": "전체 복사",
+  "statusClear": "화면 지우기 ({shortcut})",
+  "@statusClear": {
+    "placeholders": {
+      "shortcut": {
+        "type": "String"
+      }
+    }
+  },
+  "logSaveConfirm": "기록 시작",
+  "errorUnknown": "알 수 없는 오류",
+  "errorOpenFailed": "포트를 열 수 없어요: {detail}",
+  "@errorOpenFailed": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "errorNotConnected": "연결되어 있지 않아요",
+  "errorDeviceDisconnected": "기기와의 연결이 끊어졌어요. 케이블을 확인하고 다시 연결하세요.",
+  "senderHint": "Enter: 커서 줄 전송 · Ctrl+Enter: 줄바꿈",
+  "senderLineEndingNone": "없음",
+  "senderEcho": "Echo",
+  "senderEchoTooltip": "보낸 내용을 터미널 화면에도 표시",
+  "senderSend": "현재 줄 전송",
+  "settingsTitle": "터미널 설정",
+  "settingsFont": "폰트",
+  "settingsFontSize": "크기",
+  "settingsPalette": "색상 테마",
+  "settingsScrollback": "스크롤백 줄 수",
+  "settingsScrollbackHelper": "바꾸면 현재 화면 내용은 지워져요",
+  "settingsScrollbackOption": "{count}줄",
+  "@settingsScrollbackOption": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "paletteDefaultDark": "기본 (다크)",
+  "paletteWhiteOnBlack": "화이트 온 블랙",
+  "paletteGreenPhosphor": "그린 포스포",
+  "paletteLight": "라이트",
+  "helpTitle": "도움말",
+  "helpConnectTitle": "연결하기",
+  "helpConnectBody": "포트를 고르고 보드레이트를 정한 뒤 연결을 누르세요. 포트 목록은 2초마다 새로고침돼서 케이블을 꽂거나 뽑으면 바로 반영돼요. 연결되면 프롬프트를 깨우려고 Enter를 한 번 자동으로 보내요.",
+  "helpTabsTitle": "탭",
+  "helpTabsBody": "+ 버튼으로 새 세션(탭)을 열어 여러 포트에 동시에 접속할 수 있어요. 뒤에 있는 탭도 계속 데이터를 받고 기록해요. 마지막 탭은 닫을 수 없어요.",
+  "helpTypingTitle": "터미널에 직접 입력",
+  "helpTypingBody": "터미널 화면을 클릭해 포커스를 준 뒤 바로 입력하세요. 화살표, Ctrl 조합, 백스페이스를 모두 쓸 수 있어요. 단, macOS에서는 라이브러리 한계로 한글 조합이 깨져요.",
+  "helpSenderTitle": "Line Sender",
+  "helpSenderBody": "여러 줄을 미리 써 두고 Enter로 커서가 있는 줄만 보내요. Ctrl+Enter는 줄바꿈이에요. 보낸 뒤 커서가 다음 줄 끝으로 가서, Enter를 계속 누르면 위에서부터 차례로 보내져요.",
+  "helpHexTitle": "Hex View",
+  "helpHexBody": "툴바의 터미널/Hex 전환 버튼으로 바꿔요. 실제로 받은 바이트를 그대로 hex dump로 보여줘요.",
+  "helpLoggingTitle": "기록",
+  "helpLoggingBody": "● 버튼(또는 {shortcut})을 누르면 저장 위치와 파일 이름을 고르는 창이 떠요. 여러 탭이 동시에 각자 기록할 수 있어요.",
+  "@helpLoggingBody": {
+    "placeholders": {
+      "shortcut": {
+        "type": "String"
+      }
+    }
+  },
+  "helpSettingsTitle": "폰트 / 색상 테마",
+  "helpSettingsBody": "설정(⚙)에서 폰트, 크기, 터미널 색상 테마(Solarized, Dracula, Nord, Gruvbox 등), 스크롤백 줄 수를 바꿀 수 있어요. 다시 실행해도 유지돼요. 앱 전체의 라이트/다크와 언어는 탭 바 오른쪽 버튼에서 골라요.",
+  "helpShortcutsTitle": "단축키",
+  "shortcutNewTab": "새 탭",
+  "shortcutCloseTab": "현재 탭 닫기",
+  "shortcutToggleLogging": "기록 시작/정지",
+  "shortcutClear": "화면 지우기"
 }

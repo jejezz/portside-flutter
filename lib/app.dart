@@ -140,8 +140,15 @@ class _PortsideAppState extends State<PortsideApp> with WidgetsBindingObserver {
           // 단축키. 로깅 토글/새 탭/탭 닫기는 전부 "활성 탭" 기준이다.
           return CallbackShortcuts(
             bindings: {
-              AppShortcut.toggleLogging.activator: () =>
-                  context.read<SessionsProvider>().active.toggleLogging(),
+              AppShortcut.toggleLogging.activator: () {
+                // 이 단축키 위젯은 MaterialApp 바깥이라 Localizations가 없다 —
+                // 내비게이터 아래 context에서 문구를 읽는다.
+                final navContext = _navigatorKey.currentContext;
+                if (navContext == null) return;
+                context.read<SessionsProvider>().active.toggleLogging(
+                      confirmButtonText: AppLocalizations.of(navContext).logSaveConfirm,
+                    );
+              },
               AppShortcut.newTab.activator: () =>
                   context.read<SessionsProvider>().addSession(),
               AppShortcut.closeTab.activator: () {

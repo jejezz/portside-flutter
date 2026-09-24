@@ -17,11 +17,13 @@ enum AppTerminalTheme {
 }
 
 extension AppTerminalThemeX on AppTerminalTheme {
-  String get label => switch (this) {
-        AppTerminalTheme.defaultDark => '기본 (다크)',
-        AppTerminalTheme.whiteOnBlack => '화이트 온 블랙',
-        AppTerminalTheme.greenPhosphor => '그린 포스포',
-        AppTerminalTheme.light => '라이트',
+  /// 고유 이름(Solarized 등)만 여기 두고, 번역할 이름은 null — UI가
+  /// l10n으로 채운다.
+  String? get label => switch (this) {
+        AppTerminalTheme.defaultDark => null,
+        AppTerminalTheme.whiteOnBlack => null,
+        AppTerminalTheme.greenPhosphor => null,
+        AppTerminalTheme.light => null,
         AppTerminalTheme.solarizedDark => 'Solarized Dark',
         AppTerminalTheme.solarizedLight => 'Solarized Light',
         AppTerminalTheme.dracula => 'Dracula',

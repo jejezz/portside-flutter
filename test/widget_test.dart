@@ -44,4 +44,28 @@ void main() {
     expect(find.text('Version 1.4.2 (build 37)'), findsOneWidget);
     expect(find.text('Open Source Licenses'), findsOneWidget);
   });
+
+  testWidgets('한국어로 고르면 툴바·상태 바가 한국어', (tester) async {
+    await _pumpApp(tester, locale: 'ko');
+    expect(find.text('연결'), findsOneWidget);
+    expect(find.text('0바이트'), findsOneWidget);
+    expect(find.text('새 세션'), findsOneWidget);
+  });
+
+  testWidgets('English strings across the main screen and dialogs', (tester) async {
+    await _pumpApp(tester, locale: 'en');
+    expect(find.text('0 bytes'), findsOneWidget);
+    expect(find.text('New Session'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Help'));
+    await tester.pumpAndSettle();
+    expect(find.text('Keyboard Shortcuts'), findsOneWidget);
+    await tester.tap(find.text('Close'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Terminal Settings'));
+    await tester.pumpAndSettle();
+    expect(find.text('Scrollback Lines'), findsOneWidget);
+    expect(find.text('Default (Dark)'), findsOneWidget);
+  });
 }

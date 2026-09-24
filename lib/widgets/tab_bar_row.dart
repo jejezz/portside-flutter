@@ -48,7 +48,7 @@ class TabBarRow extends StatelessWidget {
           IconBadge(
             icon: Icons.add_rounded,
             color: Theme.of(context).colorScheme.primary,
-            tooltip: '새 탭 (${AppShortcut.newTab.label})',
+            tooltip: AppLocalizations.of(context).tabNew(AppShortcut.newTab.label),
             onTap: sessionsProvider.addSession,
           ),
           const SizedBox(width: 8),
@@ -120,7 +120,7 @@ class _TabChip extends StatelessWidget {
                   const SizedBox(width: 8),
                   Flexible(
                     child: Text(
-                      session.tabTitle,
+                      session.tabTitle ?? AppLocalizations.of(context).tabNewSession,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 12.5,

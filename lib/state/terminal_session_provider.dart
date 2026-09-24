@@ -34,7 +34,7 @@ class TerminalSessionProvider extends ChangeNotifier {
   bool _notifyScheduled = false;
 
   ConnectionStatus _status = ConnectionStatus.disconnected;
-  String? _errorMessage;
+  SerialServiceException? _error;
   String? _portName;
   int? _baudRate;
   final List<int> _rawBytes = [];
@@ -49,7 +49,7 @@ class TerminalSessionProvider extends ChangeNotifier {
   ViewMode _viewMode = ViewMode.terminal;
 
   ConnectionStatus get status => _status;
-  String? get errorMessage => _errorMessage;
+  SerialServiceException? get error => _error;
   String? get portName => _portName;
   int? get baudRate => _baudRate;
   int get byteCount => _rawBytes.length;
@@ -63,11 +63,11 @@ class TerminalSessionProvider extends ChangeNotifier {
   int? get pendingBaudRate => _pendingBaudRate;
   ViewMode get viewMode => _viewMode;
 
-  /// 탭에 표시할 제목: 연결됐으면 실제 포트, 아니면 고르고 있는 포트,
-  /// 그것도 없으면 "새 세션".
-  String get tabTitle {
+  /// 탭에 표시할 제목: 연결됐으면 실제 포트, 아니면 고르고 있는 포트.
+  /// 둘 다 없으면 null — UI가 "새 세션"을 번역해서 보여준다.
+  String? get tabTitle {
     final name = _portName ?? _pendingPort;
-    if (name == null) return '새 세션';
+    if (name == null) return null;
     return name.startsWith('/dev/') ? name.substring(5) : name;
   }
 
@@ -118,7 +118,7 @@ class TerminalSessionProvider extends ChangeNotifier {
       final stream = _service.open(settings.portName, settings.baudRate);
       _sub = stream.listen(_onData, onError: _onStreamError, onDone: _onStreamDone);
       _status = ConnectionStatus.connected;
-      _errorMessage = null;
+      _error = null;
       _portName = settings.portName;
       _baudRate = settings.baudRate;
       // 많은 시리얼 콘솔(임베디드 리눅스/안드로이드 디버그 콘솔 등)은 뭔가
@@ -127,7 +127,7 @@ class TerminalSessionProvider extends ChangeNotifier {
       sendRaw(const [0x0D, 0x0A]);
     } on SerialServiceException catch (e) {
       _status = ConnectionStatus.error;
-      _errorMessage = e.message;
+      _error = e;
     }
     notifyListeners();
   }
@@ -152,7 +152,7 @@ class TerminalSessionProvider extends ChangeNotifier {
       }
     } on SerialServiceException catch (e) {
       _status = ConnectionStatus.error;
-      _errorMessage = e.message;
+      _error = e;
       notifyListeners();
     }
   }
@@ -166,7 +166,7 @@ class TerminalSessionProvider extends ChangeNotifier {
       _service.write(Uint8List.fromList(bytes));
     } on SerialServiceException catch (e) {
       _status = ConnectionStatus.error;
-      _errorMessage = e.message;
+      _error = e;
       notifyListeners();
     }
   }
@@ -175,7 +175,8 @@ class TerminalSessionProvider extends ChangeNotifier {
   /// 실제로 수신한 raw bytes만 기록된다 — 연결돼 있을 때만 시작할 수 있다.
   /// 이제 탭 여러 개가 동시에 기록할 수 있어서, 시작할 때마다 파일 이름을
   /// 물어본다(취소하면 로깅을 켜지 않는다).
-  Future<void> toggleLogging() async {
+  /// [confirmButtonText]는 저장 대화상자의 확인 버튼 문구 (l10n).
+  Future<void> toggleLogging({required String confirmButtonText}) async {
     if (_logService.isLogging) {
       await _logService.stop();
       notifyListeners();
@@ -188,7 +189,7 @@ class TerminalSessionProvider extends ChangeNotifier {
     final location = await getSaveLocation(
       initialDirectory: await LogFileService.defaultDirectory(),
       suggestedName: LogFileService.suggestedFileName(port),
-      confirmButtonText: '기록 시작',
+      confirmButtonText: confirmButtonText,
     );
     if (location == null) return;
 
@@ -220,7 +221,7 @@ class TerminalSessionProvider extends ChangeNotifier {
       unawaited(_logService.stop());
     }
     _status = ConnectionStatus.error;
-    _errorMessage = error.toString();
+    _error = error is SerialServiceException ? error : SerialServiceException(SerialErrorKind.io, error.toString());
     notifyListeners();
   }
 
@@ -228,7 +229,7 @@ class TerminalSessionProvider extends ChangeNotifier {
   /// 그것도 연결 끊김으로 취급한다.
   void _onStreamDone() {
     if (_status != ConnectionStatus.connected) return;
-    _onStreamError('기기와의 연결이 끊어졌습니다');
+    _onStreamError(SerialServiceException(SerialErrorKind.deviceDisconnected));
   }
 
   /// 고빈도 스트림에서 바이트 청크마다 리렌더하지 않도록 한 마이크로태스크에

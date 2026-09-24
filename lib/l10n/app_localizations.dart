@@ -223,6 +223,384 @@ abstract class AppLocalizations {
   /// In ko, this message translates to:
   /// **'폰트·색상 테마·스크롤백 설정 저장'**
   String get aboutFeature6;
+
+  /// No description provided for @toolbarConnect.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결'**
+  String get toolbarConnect;
+
+  /// No description provided for @toolbarDisconnect.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결 끊기'**
+  String get toolbarDisconnect;
+
+  /// No description provided for @toolbarViewTerminal.
+  ///
+  /// In ko, this message translates to:
+  /// **'터미널'**
+  String get toolbarViewTerminal;
+
+  /// No description provided for @toolbarViewHex.
+  ///
+  /// In ko, this message translates to:
+  /// **'Hex'**
+  String get toolbarViewHex;
+
+  /// No description provided for @toolbarHelp.
+  ///
+  /// In ko, this message translates to:
+  /// **'도움말'**
+  String get toolbarHelp;
+
+  /// No description provided for @toolbarSettings.
+  ///
+  /// In ko, this message translates to:
+  /// **'터미널 설정'**
+  String get toolbarSettings;
+
+  /// No description provided for @portHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'포트'**
+  String get portHint;
+
+  /// No description provided for @portRefresh.
+  ///
+  /// In ko, this message translates to:
+  /// **'포트 새로고침'**
+  String get portRefresh;
+
+  /// No description provided for @baudHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'보드레이트'**
+  String get baudHint;
+
+  /// No description provided for @baudInvalid.
+  ///
+  /// In ko, this message translates to:
+  /// **'양의 정수를 입력하세요'**
+  String get baudInvalid;
+
+  /// No description provided for @baudPresets.
+  ///
+  /// In ko, this message translates to:
+  /// **'흔한 보드레이트'**
+  String get baudPresets;
+
+  /// No description provided for @tabNewSession.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 세션'**
+  String get tabNewSession;
+
+  /// No description provided for @tabNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 탭 ({shortcut})'**
+  String tabNew(String shortcut);
+
+  /// No description provided for @statusConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결됨'**
+  String get statusConnected;
+
+  /// No description provided for @statusBytes.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}바이트'**
+  String statusBytes(int count);
+
+  /// No description provided for @statusLogging.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 중 · {file}'**
+  String statusLogging(String file);
+
+  /// No description provided for @statusStartLogging.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 시작 ({shortcut})'**
+  String statusStartLogging(String shortcut);
+
+  /// No description provided for @statusStopLogging.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 정지 ({shortcut})'**
+  String statusStopLogging(String shortcut);
+
+  /// No description provided for @statusNoLogFile.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록된 로그 파일 없음'**
+  String get statusNoLogFile;
+
+  /// No description provided for @statusRevealLogFile.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 파일 위치 열기'**
+  String get statusRevealLogFile;
+
+  /// No description provided for @statusCopyAll.
+  ///
+  /// In ko, this message translates to:
+  /// **'전체 복사'**
+  String get statusCopyAll;
+
+  /// No description provided for @statusClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면 지우기 ({shortcut})'**
+  String statusClear(String shortcut);
+
+  /// No description provided for @logSaveConfirm.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 시작'**
+  String get logSaveConfirm;
+
+  /// No description provided for @errorUnknown.
+  ///
+  /// In ko, this message translates to:
+  /// **'알 수 없는 오류'**
+  String get errorUnknown;
+
+  /// No description provided for @errorOpenFailed.
+  ///
+  /// In ko, this message translates to:
+  /// **'포트를 열 수 없어요: {detail}'**
+  String errorOpenFailed(String detail);
+
+  /// No description provided for @errorNotConnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결되어 있지 않아요'**
+  String get errorNotConnected;
+
+  /// No description provided for @errorDeviceDisconnected.
+  ///
+  /// In ko, this message translates to:
+  /// **'기기와의 연결이 끊어졌어요. 케이블을 확인하고 다시 연결하세요.'**
+  String get errorDeviceDisconnected;
+
+  /// No description provided for @senderHint.
+  ///
+  /// In ko, this message translates to:
+  /// **'Enter: 커서 줄 전송 · Ctrl+Enter: 줄바꿈'**
+  String get senderHint;
+
+  /// No description provided for @senderLineEndingNone.
+  ///
+  /// In ko, this message translates to:
+  /// **'없음'**
+  String get senderLineEndingNone;
+
+  /// No description provided for @senderEcho.
+  ///
+  /// In ko, this message translates to:
+  /// **'Echo'**
+  String get senderEcho;
+
+  /// No description provided for @senderEchoTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'보낸 내용을 터미널 화면에도 표시'**
+  String get senderEchoTooltip;
+
+  /// No description provided for @senderSend.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 줄 전송'**
+  String get senderSend;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'터미널 설정'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsFont.
+  ///
+  /// In ko, this message translates to:
+  /// **'폰트'**
+  String get settingsFont;
+
+  /// No description provided for @settingsFontSize.
+  ///
+  /// In ko, this message translates to:
+  /// **'크기'**
+  String get settingsFontSize;
+
+  /// No description provided for @settingsPalette.
+  ///
+  /// In ko, this message translates to:
+  /// **'색상 테마'**
+  String get settingsPalette;
+
+  /// No description provided for @settingsScrollback.
+  ///
+  /// In ko, this message translates to:
+  /// **'스크롤백 줄 수'**
+  String get settingsScrollback;
+
+  /// No description provided for @settingsScrollbackHelper.
+  ///
+  /// In ko, this message translates to:
+  /// **'바꾸면 현재 화면 내용은 지워져요'**
+  String get settingsScrollbackHelper;
+
+  /// No description provided for @settingsScrollbackOption.
+  ///
+  /// In ko, this message translates to:
+  /// **'{count}줄'**
+  String settingsScrollbackOption(int count);
+
+  /// No description provided for @paletteDefaultDark.
+  ///
+  /// In ko, this message translates to:
+  /// **'기본 (다크)'**
+  String get paletteDefaultDark;
+
+  /// No description provided for @paletteWhiteOnBlack.
+  ///
+  /// In ko, this message translates to:
+  /// **'화이트 온 블랙'**
+  String get paletteWhiteOnBlack;
+
+  /// No description provided for @paletteGreenPhosphor.
+  ///
+  /// In ko, this message translates to:
+  /// **'그린 포스포'**
+  String get paletteGreenPhosphor;
+
+  /// No description provided for @paletteLight.
+  ///
+  /// In ko, this message translates to:
+  /// **'라이트'**
+  String get paletteLight;
+
+  /// No description provided for @helpTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'도움말'**
+  String get helpTitle;
+
+  /// No description provided for @helpConnectTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'연결하기'**
+  String get helpConnectTitle;
+
+  /// No description provided for @helpConnectBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'포트를 고르고 보드레이트를 정한 뒤 연결을 누르세요. 포트 목록은 2초마다 새로고침돼서 케이블을 꽂거나 뽑으면 바로 반영돼요. 연결되면 프롬프트를 깨우려고 Enter를 한 번 자동으로 보내요.'**
+  String get helpConnectBody;
+
+  /// No description provided for @helpTabsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'탭'**
+  String get helpTabsTitle;
+
+  /// No description provided for @helpTabsBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'+ 버튼으로 새 세션(탭)을 열어 여러 포트에 동시에 접속할 수 있어요. 뒤에 있는 탭도 계속 데이터를 받고 기록해요. 마지막 탭은 닫을 수 없어요.'**
+  String get helpTabsBody;
+
+  /// No description provided for @helpTypingTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'터미널에 직접 입력'**
+  String get helpTypingTitle;
+
+  /// No description provided for @helpTypingBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'터미널 화면을 클릭해 포커스를 준 뒤 바로 입력하세요. 화살표, Ctrl 조합, 백스페이스를 모두 쓸 수 있어요. 단, macOS에서는 라이브러리 한계로 한글 조합이 깨져요.'**
+  String get helpTypingBody;
+
+  /// No description provided for @helpSenderTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'Line Sender'**
+  String get helpSenderTitle;
+
+  /// No description provided for @helpSenderBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'여러 줄을 미리 써 두고 Enter로 커서가 있는 줄만 보내요. Ctrl+Enter는 줄바꿈이에요. 보낸 뒤 커서가 다음 줄 끝으로 가서, Enter를 계속 누르면 위에서부터 차례로 보내져요.'**
+  String get helpSenderBody;
+
+  /// No description provided for @helpHexTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'Hex View'**
+  String get helpHexTitle;
+
+  /// No description provided for @helpHexBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'툴바의 터미널/Hex 전환 버튼으로 바꿔요. 실제로 받은 바이트를 그대로 hex dump로 보여줘요.'**
+  String get helpHexBody;
+
+  /// No description provided for @helpLoggingTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록'**
+  String get helpLoggingTitle;
+
+  /// No description provided for @helpLoggingBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'● 버튼(또는 {shortcut})을 누르면 저장 위치와 파일 이름을 고르는 창이 떠요. 여러 탭이 동시에 각자 기록할 수 있어요.'**
+  String helpLoggingBody(String shortcut);
+
+  /// No description provided for @helpSettingsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'폰트 / 색상 테마'**
+  String get helpSettingsTitle;
+
+  /// No description provided for @helpSettingsBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'설정(⚙)에서 폰트, 크기, 터미널 색상 테마(Solarized, Dracula, Nord, Gruvbox 등), 스크롤백 줄 수를 바꿀 수 있어요. 다시 실행해도 유지돼요. 앱 전체의 라이트/다크와 언어는 탭 바 오른쪽 버튼에서 골라요.'**
+  String get helpSettingsBody;
+
+  /// No description provided for @helpShortcutsTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'단축키'**
+  String get helpShortcutsTitle;
+
+  /// No description provided for @shortcutNewTab.
+  ///
+  /// In ko, this message translates to:
+  /// **'새 탭'**
+  String get shortcutNewTab;
+
+  /// No description provided for @shortcutCloseTab.
+  ///
+  /// In ko, this message translates to:
+  /// **'현재 탭 닫기'**
+  String get shortcutCloseTab;
+
+  /// No description provided for @shortcutToggleLogging.
+  ///
+  /// In ko, this message translates to:
+  /// **'기록 시작/정지'**
+  String get shortcutToggleLogging;
+
+  /// No description provided for @shortcutClear.
+  ///
+  /// In ko, this message translates to:
+  /// **'화면 지우기'**
+  String get shortcutClear;
 }
 
 class _AppLocalizationsDelegate

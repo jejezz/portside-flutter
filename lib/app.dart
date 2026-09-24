@@ -3,6 +3,7 @@ import 'dart:ui' show AppExitResponse;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'app_identity.dart';
 import 'screens/home_screen.dart';
 import 'state/sessions_provider.dart';
 import 'state/settings_provider.dart';
@@ -146,7 +147,7 @@ class _PortsideAppState extends State<PortsideApp> with WidgetsBindingObserver {
                   context.read<SessionsProvider>().active.clearTerminal(),
             },
             child: MaterialApp(
-              title: 'Portside',
+              title: AppIdentity.displayName,
               theme: _buildTheme(),
               home: const HomeScreen(),
             ),

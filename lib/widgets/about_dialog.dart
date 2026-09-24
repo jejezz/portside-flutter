@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../app_identity.dart';
 import '../theme/tokens.dart';
 
 /// 앱 이름/버전/목적/기능 등을 보여주는 정보 다이얼로그.
 class PortsideAboutDialog extends StatelessWidget {
   const PortsideAboutDialog({super.key});
-
-  static final _repoUrl = Uri.parse('https://github.com/jejezz/portside-flutter');
 
   static const _features = [
     '시리얼 포트 자동 감지·핫플러그 새로고침, 보드레이트 지정',
@@ -77,14 +76,14 @@ class PortsideAboutDialog extends StatelessWidget {
               const SizedBox(height: 12),
               const Text('Flutter(Dart)로 제작', style: _strong),
               const Text('라이선스: MIT', style: _strong),
-              const Text('Copyright © 2026 Jong-yun Ahn', style: _body),
+              const Text(AppIdentity.copyright, style: _body),
             ],
           ),
         ),
       ),
       actions: [
         TextButton(
-          onPressed: () => launchUrl(_repoUrl),
+          onPressed: () => launchUrl(Uri.parse(AppIdentity.repositoryUrl)),
           child: const Text('GitHub 저장소 열기'),
         ),
         FilledButton(onPressed: () => Navigator.of(context).pop(), child: const Text('닫기')),

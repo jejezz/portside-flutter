@@ -27,15 +27,15 @@ class HelpDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final heading = TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: scheme.onSurface);
     return AlertDialog(
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.card)),
-      title: const Row(
+      title: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.help_outline_rounded, size: 22, color: AppColors.primary),
-          SizedBox(width: 10),
-          Text('도움말'),
+          Icon(Icons.help_outline_rounded, size: 22, color: scheme.primary),
+          const SizedBox(width: 10),
+          const Text('도움말'),
         ],
       ),
       content: SizedBox(
@@ -46,12 +46,12 @@ class HelpDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               for (final (title, body) in _sections) ...[
-                Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textHi)),
+                Text(title, style: heading),
                 const SizedBox(height: 4),
-                Text(body, style: const TextStyle(fontSize: 12.5, height: 1.5, color: AppColors.textMid)),
+                Text(body, style: TextStyle(fontSize: 12.5, height: 1.5, color: scheme.onSurfaceVariant)),
                 const SizedBox(height: 16),
               ],
-              const Text('단축키', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textHi)),
+              Text('단축키', style: heading),
               const SizedBox(height: 8),
               for (final (key, desc) in _shortcuts)
                 Padding(
@@ -61,13 +61,13 @@ class HelpDialog extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.28),
+                          color: PortsideColors.of(context).inset,
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        child: Text(key, style: const TextStyle(fontSize: 12, color: AppColors.textHi)),
+                        child: Text(key, style: TextStyle(fontSize: 12, color: scheme.onSurface)),
                       ),
                       const SizedBox(width: 10),
-                      Text(desc, style: const TextStyle(fontSize: 12.5, color: AppColors.textMid)),
+                      Text(desc, style: TextStyle(fontSize: 12.5, color: scheme.onSurfaceVariant)),
                     ],
                   ),
                 ),

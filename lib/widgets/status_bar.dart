@@ -17,14 +17,15 @@ class StatusBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final session = context.watch<TerminalSessionProvider>();
     final connected = session.status == ConnectionStatus.connected;
+    final colors = PortsideColors.of(context);
 
     return Row(
       children: [
         Text(
           '${session.byteCount} bytes',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12.5,
-            color: AppColors.textMid,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -33,13 +34,14 @@ class StatusBar extends StatelessWidget {
           StatusPill(
             label: '기록 중 · ${session.logFilePath?.split('/').last ?? ''}',
             color: AppColors.danger,
+            textColor: colors.dangerText,
           ),
         const Spacer(),
         IconBadge(
           icon: session.isLogging
               ? Icons.stop_rounded
               : Icons.fiber_manual_record_rounded,
-          color: session.isLogging ? AppColors.primary : AppColors.danger,
+          color: session.isLogging ? Theme.of(context).colorScheme.primary : AppColors.danger,
           active: session.isLogging,
           tooltip: session.isLogging ? '기록 정지 (${AppShortcut.toggleLogging.label})' : '기록 시작 (${AppShortcut.toggleLogging.label})',
           onTap: (connected || session.isLogging)
@@ -49,7 +51,7 @@ class StatusBar extends StatelessWidget {
         const SizedBox(width: 6),
         IconBadge(
           icon: Icons.folder_open_rounded,
-          color: AppColors.idle,
+          color: colors.idle,
           tooltip: session.logFilePath == null ? '기록된 로그 파일 없음' : '기록 파일 위치 열기',
           onTap: session.logFilePath == null
               ? null
@@ -58,7 +60,7 @@ class StatusBar extends StatelessWidget {
         const SizedBox(width: 6),
         IconBadge(
           icon: Icons.content_copy_rounded,
-          color: AppColors.idle,
+          color: colors.idle,
           tooltip: '전체 복사',
           onTap: () =>
               Clipboard.setData(ClipboardData(text: session.displayText)),
@@ -66,7 +68,7 @@ class StatusBar extends StatelessWidget {
         const SizedBox(width: 6),
         IconBadge(
           icon: Icons.clear_all_rounded,
-          color: AppColors.idle,
+          color: colors.idle,
           tooltip: '화면 지우기 (${AppShortcut.clearTerminal.label})',
           onTap: () => session.clearTerminal(),
         ),

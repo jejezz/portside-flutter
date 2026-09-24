@@ -1,36 +1,95 @@
 import 'package:flutter/material.dart';
 
-/// saturn-mobile-client-flutter(lib/core/theme.dart)의 팔레트/반지름 값을
-/// 그대로 옮겼다 — 두 앱이 같은 패밀리처럼 보이도록 토큰을 공유한다.
-class AppColors {
-  const AppColors._();
+import 'app_theme.dart';
 
-  static const bg = Color(0xFF0A0E14);
-  static const bgAlt = Color(0xFF0E141C);
-  static const surface = Color(0xFF151D27);
-  static const surfaceHi = Color(0xFF1D2733);
-  static const stroke = Color(0x1AFFFFFF);
-  static const strokeStrong = Color(0x33FFFFFF);
+export 'app_theme.dart';
 
-  static const primary = Color(0xFF4C9DFF);
-  static const primaryDeep = Color(0xFF2C6BE0);
-  static const accent = Color(0xFF7C5CFF);
+/// Portside 고유 색. 공통 팔레트(app_theme.dart)에 없는 것만 라이트·다크 한
+/// 쌍으로 둔다 (conventions/theming.md §2). 위젯에서는
+/// `PortsideColors.of(context)`로 읽는다.
+@immutable
+class PortsideColors extends ThemeExtension<PortsideColors> {
+  const PortsideColors({
+    required this.bg,
+    required this.bgAlt,
+    required this.idle,
+    required this.inset,
+    required this.textLow,
+    required this.successText,
+    required this.dangerText,
+  });
 
-  static const success = Color(0xFF34D399);
-  static const warning = Color(0xFFFFB020);
-  static const danger = Color(0xFFFF5A5F);
-  static const idle = Color(0xFF64748B);
+  /// 배경 워시([AuroraBackground])의 양 끝과 가운데 색.
+  final Color bg;
+  final Color bgAlt;
 
-  static const textHi = Color(0xFFF1F5F9);
-  static const textMid = Color(0xFFA9B4C4);
-  static const textLow = Color(0xFF6B7787);
-}
+  /// 보조 아이콘 배지(도움말, 설정, 새로고침 등)의 색.
+  final Color idle;
 
-class AppRadius {
-  const AppRadius._();
-  static const card = 24.0;
-  static const tile = 20.0;
-  static const chip = 999.0;
+  /// 카드 안에 파인 입력칸·키 표시의 채움.
+  final Color inset;
+
+  final Color textLow;
+
+  /// 의미 색을 글자에 쓸 때 — 흰 배경에서는 진한 변형이 필요하다.
+  final Color successText;
+  final Color dangerText;
+
+  static const dark = PortsideColors(
+    bg: AppColors.bg,
+    bgAlt: Color(0xFF0E141C),
+    idle: Color(0xFF64748B),
+    inset: Color(0x47000000),
+    textLow: AppColors.textLow,
+    successText: AppColors.success,
+    dangerText: AppColors.danger,
+  );
+
+  static const light = PortsideColors(
+    bg: AppColors.bgLight,
+    bgAlt: Color(0xFFE9EEF6),
+    idle: Color(0xFF64748B),
+    inset: Color(0x0F000000),
+    textLow: AppColors.textLowLight,
+    successText: AppColors.successTextLight,
+    dangerText: AppColors.dangerTextLight,
+  );
+
+  static PortsideColors of(BuildContext context) => Theme.of(context).extension<PortsideColors>()!;
+
+  @override
+  PortsideColors copyWith({
+    Color? bg,
+    Color? bgAlt,
+    Color? idle,
+    Color? inset,
+    Color? textLow,
+    Color? successText,
+    Color? dangerText,
+  }) =>
+      PortsideColors(
+        bg: bg ?? this.bg,
+        bgAlt: bgAlt ?? this.bgAlt,
+        idle: idle ?? this.idle,
+        inset: inset ?? this.inset,
+        textLow: textLow ?? this.textLow,
+        successText: successText ?? this.successText,
+        dangerText: dangerText ?? this.dangerText,
+      );
+
+  @override
+  PortsideColors lerp(PortsideColors? other, double t) {
+    if (other == null) return this;
+    return PortsideColors(
+      bg: Color.lerp(bg, other.bg, t)!,
+      bgAlt: Color.lerp(bgAlt, other.bgAlt, t)!,
+      idle: Color.lerp(idle, other.idle, t)!,
+      inset: Color.lerp(inset, other.inset, t)!,
+      textLow: Color.lerp(textLow, other.textLow, t)!,
+      successText: Color.lerp(successText, other.successText, t)!,
+      dangerText: Color.lerp(dangerText, other.dangerText, t)!,
+    );
+  }
 }
 
 /// Saturn과 같은 배경 워시 — 스캐폴드 뒤에 까는 은은한 아우라 그라디언트.
@@ -42,16 +101,17 @@ class AuroraBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = tint ?? AppColors.primary;
+    final colors = PortsideColors.of(context);
+    final accent = tint ?? Theme.of(context).colorScheme.primary;
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColors.bg,
-            Color.alphaBlend(accent.withValues(alpha: 0.10), AppColors.bgAlt),
-            AppColors.bg,
+            colors.bg,
+            Color.alphaBlend(accent.withValues(alpha: 0.10), colors.bgAlt),
+            colors.bg,
           ],
           stops: const [0, 0.45, 1],
         ),

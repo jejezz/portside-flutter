@@ -22,8 +22,9 @@ class GlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tint = accent ?? AppColors.primary;
-    const base = AppColors.surface;
+    final scheme = Theme.of(context).colorScheme;
+    final tint = accent ?? scheme.primary;
+    final base = scheme.surface;
 
     return Container(
       decoration: BoxDecoration(
@@ -39,7 +40,7 @@ class GlassCard extends StatelessWidget {
               : [base, Color.alphaBlend(Colors.white.withValues(alpha: 0.02), base)],
         ),
         border: Border.all(
-          color: active ? tint.withValues(alpha: 0.55) : AppColors.stroke,
+          color: active ? tint.withValues(alpha: 0.55) : scheme.outlineVariant,
           width: 1,
         ),
         boxShadow: active
@@ -106,10 +107,13 @@ class IconBadge extends StatelessWidget {
 
 /// Saturn의 StatusPill 그대로 — 연결 상태/기록 상태 배지.
 class StatusPill extends StatelessWidget {
-  const StatusPill({super.key, required this.label, required this.color, this.icon});
+  const StatusPill({super.key, required this.label, required this.color, this.textColor, this.icon});
 
   final String label;
   final Color color;
+
+  /// 글자색. 라이트 테마에서는 의미 색의 진한 변형을 넘긴다 (theming.md §2).
+  final Color? textColor;
   final IconData? icon;
 
   @override
@@ -129,7 +133,7 @@ class StatusPill extends StatelessWidget {
           else
             Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 7),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: color)),
+          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: textColor ?? color)),
         ],
       ),
     );

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../about/portside_about.dart';
+import '../l10n/app_localizations.dart';
+import '../settings/settings_menus.dart';
 import '../state/sessions_provider.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
 import '../utils/app_shortcuts.dart';
-import 'about_dialog.dart';
 import 'glass_card.dart';
 
 /// 세션(탭) 목록을 보여주는 얇은 가로 바. 탭이 동적으로 추가/삭제돼서
@@ -45,19 +47,19 @@ class TabBarRow extends StatelessWidget {
           const SizedBox(width: 8),
           IconBadge(
             icon: Icons.add_rounded,
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
             tooltip: '새 탭 (${AppShortcut.newTab.label})',
             onTap: sessionsProvider.addSession,
           ),
           const SizedBox(width: 8),
+          // 앱 바 오른쪽 끝의 순서: 테마 | 언어 | 정보 (theming.md §3).
+          const ThemeMenuButton(),
+          const LanguageMenuButton(),
           IconBadge(
             icon: Icons.info_outline_rounded,
-            color: AppColors.idle,
-            tooltip: 'Portside 정보',
-            onTap: () => showDialog<void>(
-              context: context,
-              builder: (_) => const PortsideAboutDialog(),
-            ),
+            color: PortsideColors.of(context).idle,
+            tooltip: AppLocalizations.of(context).aboutTooltip,
+            onTap: () => showPortsideAbout(context),
           ),
           const SizedBox(width: 12),
         ],
@@ -88,10 +90,12 @@ class _TabChip extends StatelessWidget {
     return ListenableBuilder(
       listenable: session,
       builder: (context, _) {
+        final scheme = Theme.of(context).colorScheme;
+        final colors = PortsideColors.of(context);
         final Color statusColor = switch (session.status) {
           ConnectionStatus.connected => AppColors.success,
           ConnectionStatus.error => AppColors.danger,
-          ConnectionStatus.disconnected => AppColors.idle,
+          ConnectionStatus.disconnected => colors.idle,
         };
 
         return GestureDetector(
@@ -119,7 +123,7 @@ class _TabChip extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12.5,
                         fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                        color: isActive ? AppColors.textHi : AppColors.textMid,
+                        color: isActive ? scheme.onSurface : scheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -128,9 +132,9 @@ class _TabChip extends StatelessWidget {
                     InkWell(
                       onTap: onClose,
                       borderRadius: BorderRadius.circular(10),
-                      child: const Padding(
-                        padding: EdgeInsets.all(2),
-                        child: Icon(Icons.close_rounded, size: 14, color: AppColors.textLow),
+                      child: Padding(
+                        padding: const EdgeInsets.all(2),
+                        child: Icon(Icons.close_rounded, size: 14, color: colors.textLow),
                       ),
                     ),
                   ],

@@ -1,4 +1,6 @@
-# Portside: macOS 전용 Flutter 시리얼 터미널 — 설계 문서
+# Portside: Flutter 시리얼 터미널 (macOS·Windows·Linux) — 설계 문서
+
+> 처음에는 macOS 전용으로 시작했다. 아래 "배경"과 "확정된 범위"는 그 시점의 기록이고, 지금은 Windows·Linux도 릴리스한다.
 
 ## 배경
 macOS에는 Windows처럼 무료 COM 포트 터미널이 마땅치 않다. CoolTerm은 오래돼서 더 이상 실행되지 않고, Termius는 시리얼 통신을 지원하지만 유료다. Termius 수준으로 깔끔하되, 단일 목적(시리얼 통신)에 맞게 단순화한 macOS 데스크톱 앱을 직접 만든다.
@@ -70,8 +72,7 @@ lib/
   widgets/port_selector.dart, baud_rate_selector.dart, terminal_view.dart,
           line_sender.dart, status_bar.dart, settings_dialog.dart
   utils/hex_dump.dart
-assets/icons/   # icons8 세트 (rs-232, usb-connected, terminal, hex, speed, theme,
-                #   settings, save-as, stop, record, refresh, send, error)
+assets/icon/    # 앱 아이콘 원본 글리프와 생성 결과 (tool/icon/generate_icons.py)
 test/hex_dump_test.dart
 ```
 
@@ -152,3 +153,15 @@ Phase 0~8 전부 실기기(USB-시리얼 어댑터, Android 디버그 콘솔 115
 
 ## Phase 13 — 메뉴 폰트를 SeoulNamsan으로 교체 (2026-09-06)
 Phase 10에서 실제 폰트 파일이 없어 `ClipartKorea`를 그대로 뒀던 걸 뒤집음 — 사용자가 다른 프로젝트(Allwinner flashing tool)에 적용된 Saturn의 `SeoulNamsan`을 보고 그쪽이 더 낫다고 판단. `saturn-mobile-client-flutter/assets/fonts/`의 4중량(light 300/regular 400/bold 700/extra_bold 800) TTF를 그대로 복사해오고, `pubspec.yaml` 폰트 블록과 `app.dart`의 `_lightTextTheme()` 폰트 패밀리만 교체 — 터미널 안쪽 모노스페이스 폰트(`SettingsProvider`가 따로 관리)는 무관. 기존 `ClipartKorea` TTF 4종은 삭제.
+
+## Phase 14 — 공통 규약 conventions-v1 적용 (2026-09-25)
+형제 앱들과 릴리스·정보 창·테마·언어 방식을 맞추려고 [application-release-templates](https://github.com/jejezz/application-release-templates/tree/main/conventions)의 conventions-v1을 적용함. 규약 자체는 그 저장소에 있고, 여기에는 Portside에서 따로 정한 것만 적는다.
+
+- 정체성: 저작권자·게시자를 `Jongyun Ahn`으로 통일. bundle id `art.zoomon.portside`와 Windows `AppId` GUID는 이미 릴리스했으므로 그대로.
+- 릴리스: 워크플로·Inno Setup(`installer/windows/app.iss`)·Linux `install.sh`를 템플릿으로 교체. 산출물 이름이 `Portside-<버전>-<os>-<arch>`로 바뀜. build number는 0.1.9+19 다음부터 +1씩 (예전 patch+10 규칙 폐기).
+- 정보 창: Phase 12의 `about_dialog.dart`를 공통 정보 창(`lib/about/`)으로 교체. 문구는 `lib/about/portside_about.dart`, macOS 앱 메뉴의 About도 같은 창을 연다 — Phase 12에서 미뤘던 네이티브 메뉴 연결을 `PlatformMenuBar`로 해결.
+- 테마: 라이트 테마 추가 (시스템/라이트/다크, 기본 시스템). 공통 `AppTheme` 위에 Portside 고유 색을 `PortsideColors`(라이트·다크 한 쌍)로 얹음. 터미널 색상 테마는 앱 테마와 별개(`terminal_palette`).
+- 글꼴: 규약은 SeoulNamsan 300을 빼라고 하지만, Portside의 가벼운 인상(Phase 13의 `_lightTextTheme`)을 유지하기로 해서 300을 남기고 텍스트 테마 전체를 w300으로 둔다. 크기는 공통 테마의 데스크톱 밀도를 따른다.
+- 언어: gen-l10n(한국어 기준 + 영어). 영어로 박혀 있던 Connect/CONNECTED 등도 번역.
+- 설정 키: `font_size`/`font_family`/`theme`/`scrollback_lines` → `terminal_*`. 첫 실행 때 옛 값을 옮긴다.
+- 창: 크기를 Swift `minSize` 대신 `window_manager`로 (1200×720, 최소 860×560).

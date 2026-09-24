@@ -9,11 +9,11 @@
 | 파일 | 용도 |
 |---|---|
 | [`scripts/build-app-windows.ps1`](../scripts/build-app-windows.ps1) | `flutter build windows --release` 실행 |
-| [`installer/windows/portside.iss`](../installer/windows/portside.iss) | Inno Setup 스크립트 — `PortsideSetup-<version>.exe` 생성 |
+| [`installer/windows/app.iss`](../installer/windows/app.iss) | Inno Setup 스크립트 — `Portside-<version>-windows-x64-setup.exe` 생성 |
 
 서명 인증서 없이(ad-hoc) 만들므로, macOS의 Gatekeeper처럼 Windows SmartScreen이 처음 실행 시 "Windows에서 PC를 보호했습니다" 경고를 띄운다. "추가 정보 → 실행"으로 넘어갈 수 있다 — macOS 릴리즈가 공증 없이 배포되는 것과 같은 사정이다.
 
-**검증 상태**: 아래 0~4단계(빌드 → Inno Setup 컴파일 → `/VERYSILENT` 설치 → 실행 → 언인스톨러로 제거)를 이 저장소의 릴리즈 빌드로 실제로 확인함 (2026-09-19).
+**검증 상태**: 아래 0~4단계(빌드 → Inno Setup 컴파일 → `/VERYSILENT` 설치 → 실행 → 언인스톨러로 제거)를 옛 `portside.iss`와 이 저장소의 릴리즈 빌드로 실제로 확인함 (2026-09-19). 2026-09-25에 규약 템플릿(`app.iss`)으로 바꾼 뒤에는 아직 다시 확인하지 않았다.
 
 ## 0. 먼저 릴리즈 빌드를 만든다
 
@@ -33,24 +33,24 @@ winget install JRSoftware.InnoSetup
 
 ## 2. 버전 맞추기
 
-CI(`.github/workflows/release.yml`)는 태그 이름(예: `v0.1.4` → `0.1.4`)을 `ISCC /DMyAppVersion=...`로 넘겨서 버전을 자동으로 맞춘다. 로컬에서 수동으로 컴파일할 때만 [`installer/windows/portside.iss`](../installer/windows/portside.iss) 맨 위의 기본값 `MyAppVersion`을 `pubspec.yaml`의 `version:`(빌드 번호 `+N`은 뺀 `major.minor.patch`만)과 맞춰서 바꾼다. 예: `version: 0.1.4+14` → `MyAppVersion "0.1.4"`.
+CI(`.github/workflows/release.yml`)는 태그 이름(예: `v0.1.4` → `0.1.4`)을 `ISCC /DMyAppVersion=...`로 넘겨서 버전을 자동으로 맞춘다. [`installer/windows/app.iss`](../installer/windows/app.iss)의 기본값은 `0.0.0`이라서, 로컬에서 컴파일할 때는 아래 3단계처럼 `/DMyAppVersion=`과 `/DMyAppNumericVersion=`에 `pubspec.yaml`의 `version:`(빌드 번호 `+N`은 뺀 값)을 넘긴다. 넘기지 않으면 `0.0.0`으로 만들어져서 로컬 빌드임이 드러난다.
 
 `AppId`(고유 GUID)는 그 안에 이미 고정되어 있다 — 앱을 갈아엎는 게 아니라면 절대 바꾸지 않는다. 바꾸면 Windows가 이전 버전과 다른 앱으로 인식해서, 제어판 "프로그램 추가/제거"에서 업그레이드/제거가 깨진다.
 
 ## 3. 컴파일
 
 ```powershell
-& "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" installer\windows\portside.iss
+& "$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe" /DMyAppVersion=0.1.4 /DMyAppNumericVersion=0.1.4 installer\windows\app.iss
 ```
 
-`dist\PortsideSetup-<version>.exe`가 만들어진다. (특정 버전을 강제하려면 CI처럼 `/DMyAppVersion=0.1.4`를 덧붙인다.)
+`dist\Portside-<version>-windows-x64-setup.exe`가 만들어진다.
 
 ## 4. 설치 테스트
 
 더블클릭해서 마법사가 정상적으로 뜨는지 확인한다. 사람 손 안 대고 빠르게 확인하려면:
 
 ```powershell
-.\dist\PortsideSetup-0.1.4.exe /VERYSILENT /DIR="$env:TEMP\portside-test-install"
+.\dist\Portside-0.1.4-windows-x64-setup.exe /VERYSILENT /DIR="$env:TEMP\portside-test-install"
 & "$env:TEMP\portside-test-install\portside.exe"
 ```
 
@@ -62,16 +62,16 @@ CI(`.github/workflows/release.yml`)는 태그 이름(예: `v0.1.4` → `0.1.4`)�
 
 **GitHub CLI로 (권장 — 설치돼 있지 않으면 `winget install GitHub.cli`)**
 
-이미 그 태그의 릴리즈가 있다면(예: CI의 `release` 잡이 macOS/Linux까지는 만들어 놓은 상태):
+이미 그 태그의 릴리즈가 있다면:
 
 ```powershell
-gh release upload v0.1.4 dist\PortsideSetup-0.1.4.exe
+gh release upload v0.1.4 dist\Portside-0.1.4-windows-x64-setup.exe
 ```
 
 아직 릴리즈 자체가 없다면 (Windows만 먼저 낼 때):
 
 ```powershell
-gh release create v0.1.4 dist\PortsideSetup-0.1.4.exe --title v0.1.4 --draft
+gh release create v0.1.4 dist\Portside-0.1.4-windows-x64-setup.exe --title v0.1.4 --draft
 ```
 
 `--draft`를 빼면 바로 공개된다. 초안으로 만들었다면 GitHub 웹에서 내용을 확인한 뒤 "Publish release"를 누른다.
@@ -79,16 +79,16 @@ gh release create v0.1.4 dist\PortsideSetup-0.1.4.exe --title v0.1.4 --draft
 체크섬도 같이 올려두면 좋다:
 
 ```powershell
-Get-FileHash dist\PortsideSetup-0.1.4.exe -Algorithm SHA256 |
+Get-FileHash dist\Portside-0.1.4-windows-x64-setup.exe -Algorithm SHA256 |
     ForEach-Object { "$($_.Hash.ToLower())  $(Split-Path $_.Path -Leaf)" } |
-    Out-File -Append dist\SHA256SUMS -Encoding ascii
-gh release upload v0.1.4 dist\SHA256SUMS --clobber
+    Out-File -Append dist\SHA256SUMS.txt -Encoding ascii
+gh release upload v0.1.4 dist\SHA256SUMS.txt --clobber
 ```
 
 **GitHub 웹 UI로 (gh 설치 없이)**
 
 1. https://github.com/jejezz/portside-flutter/releases 에서 해당 태그의 릴리즈를 연다 (없으면 "Draft a new release").
-2. "Attach binaries" 영역에 `dist\PortsideSetup-0.1.4.exe`를 드래그 앤 드롭.
+2. "Attach binaries" 영역에 `dist\Portside-0.1.4-windows-x64-setup.exe`를 드래그 앤 드롭.
 3. 초안이면 "Publish release".
 
 ## 배포 노트에 적어둘 것

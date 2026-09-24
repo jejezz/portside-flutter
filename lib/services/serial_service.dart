@@ -28,9 +28,9 @@ class SerialService {
 
     final port = SerialPort(portName);
     if (!port.openReadWrite()) {
-      final message = SerialPort.lastError?.message ?? '알 수 없는 오류';
+      final detail = SerialPort.lastError?.message;
       port.dispose();
-      throw SerialServiceException(message);
+      throw SerialServiceException(SerialErrorKind.openFailed, detail);
     }
 
     port.config = SerialPortConfig()..baudRate = baudRate;
@@ -44,14 +44,14 @@ class SerialService {
   int write(Uint8List bytes) {
     final port = _port;
     if (port == null) {
-      throw SerialServiceException('연결되어 있지 않습니다');
+      throw SerialServiceException(SerialErrorKind.notOpen);
     }
     try {
       return port.write(bytes);
     } on SerialPortError catch (e) {
       // 기기가 도중에 뽑히면 여기서 네이티브 에러가 난다 — 그대로 던지지
       // 않고 상위(provider)가 일관되게 처리할 수 있는 타입으로 감싼다.
-      throw SerialServiceException(e.message);
+      throw SerialServiceException(SerialErrorKind.io, e.message);
     }
   }
 
@@ -72,11 +72,29 @@ class SerialService {
   }
 }
 
-class SerialServiceException implements Exception {
-  SerialServiceException(this.message);
+/// 오류 종류. 화면 문구는 UI가 l10n으로 고른다 — 서비스는 문구를 모른다.
+enum SerialErrorKind {
+  /// 포트를 열지 못함.
+  openFailed,
 
-  final String message;
+  /// 열린 포트 없이 쓰기를 시도함.
+  notOpen,
+
+  /// 읽기/쓰기 중 네이티브 오류 (기기를 뽑는 등).
+  io,
+
+  /// 수신 스트림이 오류 없이 끝남 — 기기가 뽑혔다.
+  deviceDisconnected,
+}
+
+class SerialServiceException implements Exception {
+  SerialServiceException(this.kind, [this.detail]);
+
+  final SerialErrorKind kind;
+
+  /// OS/libserialport가 준 원문 (번역되지 않음). 없을 수 있다.
+  final String? detail;
 
   @override
-  String toString() => message;
+  String toString() => detail ?? kind.name;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/tokens.dart';
 import 'glass_card.dart';
 
@@ -38,7 +39,7 @@ class _BaudRateSelectorState extends State<BaudRateSelector> {
   void _onTextChanged(String text) {
     final value = int.tryParse(text.trim());
     final valid = value != null && value > 0;
-    setState(() => _errorText = valid ? null : '양의 정수를 입력하세요');
+    setState(() => _errorText = valid ? null : AppLocalizations.of(context).baudInvalid);
     widget.onChanged(valid ? value : null);
   }
 
@@ -61,7 +62,7 @@ class _BaudRateSelectorState extends State<BaudRateSelector> {
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             decoration: InputDecoration(
               isDense: true,
-              hintText: 'Baud',
+              hintText: AppLocalizations.of(context).baudHint,
               errorText: _errorText,
               contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
               filled: true,
@@ -77,7 +78,7 @@ class _BaudRateSelectorState extends State<BaudRateSelector> {
         const SizedBox(width: 4),
         PopupMenuButton<int>(
           enabled: widget.enabled,
-          tooltip: '흔한 보드레이트',
+          tooltip: AppLocalizations.of(context).baudPresets,
           icon: const IconBadge(icon: Icons.speed_rounded, color: AppColors.accent, size: 34),
           onSelected: _pickPreset,
           itemBuilder: (context) => [

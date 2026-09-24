@@ -9,8 +9,10 @@ extension LineEndingX on LineEnding {
         LineEnding.crlf => '\r\n',
       };
 
-  String get label => switch (this) {
-        LineEnding.none => '없음',
+  /// 드롭다운 표기. [LineEnding.none]은 번역할 문구라서 null — UI가
+  /// l10n으로 채운다.
+  String? get label => switch (this) {
+        LineEnding.none => null,
         LineEnding.lf => r'\n',
         LineEnding.cr => r'\r',
         LineEnding.crlf => r'\r\n',

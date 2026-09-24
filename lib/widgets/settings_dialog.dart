@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/app_terminal_theme.dart';
 import '../state/settings_provider.dart';
 import '../theme/tokens.dart';
+
+String _paletteLabel(AppLocalizations l10n, AppTerminalTheme palette) =>
+    palette.label ??
+    switch (palette) {
+      AppTerminalTheme.defaultDark => l10n.paletteDefaultDark,
+      AppTerminalTheme.whiteOnBlack => l10n.paletteWhiteOnBlack,
+      AppTerminalTheme.greenPhosphor => l10n.paletteGreenPhosphor,
+      AppTerminalTheme.light => l10n.paletteLight,
+      _ => palette.name,
+    };
 
 class SettingsDialog extends StatelessWidget {
   const SettingsDialog({super.key});
@@ -26,6 +37,7 @@ class SettingsDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
       title: Row(
@@ -33,7 +45,7 @@ class SettingsDialog extends StatelessWidget {
         children: [
           Icon(Icons.settings_rounded, size: 24, color: scheme.primary),
           const SizedBox(width: 10),
-          const Text('터미널 설정'),
+          Text(l10n.settingsTitle),
         ],
       ),
       content: SizedBox(
@@ -44,7 +56,7 @@ class SettingsDialog extends StatelessWidget {
           children: [
             DropdownButtonFormField<String>(
               initialValue: settings.fontFamily,
-              decoration: _insetDecoration(context, label: '폰트'),
+              decoration: _insetDecoration(context, label: l10n.settingsFont),
               items: [
                 for (final f in kFontFamilies) DropdownMenuItem(value: f, child: Text(f, style: TextStyle(fontFamily: f))),
               ],
@@ -55,7 +67,7 @@ class SettingsDialog extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
-                Text('크기', style: TextStyle(color: scheme.onSurfaceVariant)),
+                Text(l10n.settingsFontSize, style: TextStyle(color: scheme.onSurfaceVariant)),
                 Expanded(
                   child: Slider(
                     value: settings.fontSize,
@@ -75,11 +87,11 @@ class SettingsDialog extends StatelessWidget {
               initialValue: settings.appTheme,
               decoration: _insetDecoration(
                 context,
-                label: '테마',
+                label: l10n.settingsPalette,
                 prefixIcon: const Icon(Icons.palette_rounded, size: 20, color: AppColors.accent),
               ),
               items: [
-                for (final t in AppTerminalTheme.values) DropdownMenuItem(value: t, child: Text(t.label)),
+                for (final t in AppTerminalTheme.values) DropdownMenuItem(value: t, child: Text(_paletteLabel(l10n, t))),
               ],
               onChanged: (value) {
                 if (value != null) settings.setAppTheme(value);
@@ -88,9 +100,9 @@ class SettingsDialog extends StatelessWidget {
             const SizedBox(height: 8),
             DropdownButtonFormField<int>(
               initialValue: settings.scrollbackLines,
-              decoration: _insetDecoration(context, label: '스크롤백 줄 수', helper: '바꾸면 현재 화면 내용은 지워집니다'),
+              decoration: _insetDecoration(context, label: l10n.settingsScrollback, helper: l10n.settingsScrollbackHelper),
               items: [
-                for (final n in kScrollbackLinesOptions) DropdownMenuItem(value: n, child: Text('$n줄')),
+                for (final n in kScrollbackLinesOptions) DropdownMenuItem(value: n, child: Text(l10n.settingsScrollbackOption(n))),
               ],
               onChanged: (value) {
                 if (value != null) settings.setScrollbackLines(value);
@@ -100,7 +112,7 @@ class SettingsDialog extends StatelessWidget {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('닫기')),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.commonClose)),
       ],
     );
   }

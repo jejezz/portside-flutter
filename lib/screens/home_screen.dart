@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/connection_settings.dart';
+import '../services/serial_service.dart';
 import '../state/sessions_provider.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
@@ -75,6 +77,7 @@ class _SessionBodyState extends State<_SessionBody> {
   @override
   Widget build(BuildContext context) {
     final session = context.watch<TerminalSessionProvider>();
+    final l10n = AppLocalizations.of(context);
     final colors = PortsideColors.of(context);
     final scheme = Theme.of(context).colorScheme;
     final connected = session.status == ConnectionStatus.connected;
@@ -126,23 +129,23 @@ class _SessionBodyState extends State<_SessionBody> {
                       onPressed: connected
                           ? session.disconnect
                           : (canConnect ? () => _connect(session) : null),
-                      child: Text(connected ? 'Disconnect' : 'Connect'),
+                      child: Text(connected ? l10n.toolbarDisconnect : l10n.toolbarConnect),
                     ),
                     const SizedBox(width: 8),
                     SegmentedButton<ViewMode>(
                       style: const ButtonStyle(
                         visualDensity: VisualDensity.compact,
                       ),
-                      segments: const [
+                      segments: [
                         ButtonSegment(
                           value: ViewMode.terminal,
-                          tooltip: 'Terminal',
-                          icon: Icon(Icons.terminal_rounded, size: 18),
+                          tooltip: l10n.toolbarViewTerminal,
+                          icon: const Icon(Icons.terminal_rounded, size: 18),
                         ),
                         ButtonSegment(
                           value: ViewMode.hex,
-                          tooltip: 'Hex',
-                          icon: Icon(Icons.grid_view_rounded, size: 18),
+                          tooltip: l10n.toolbarViewHex,
+                          icon: const Icon(Icons.grid_view_rounded, size: 18),
                         ),
                       ],
                       selected: {session.viewMode},
@@ -154,7 +157,7 @@ class _SessionBodyState extends State<_SessionBody> {
                       icon: Icons.help_outline_rounded,
                       color: colors.idle,
                       size: 32,
-                      tooltip: '도움말',
+                      tooltip: l10n.toolbarHelp,
                       onTap: () => showDialog<void>(
                         context: context,
                         builder: (_) => const HelpDialog(),
@@ -165,7 +168,7 @@ class _SessionBodyState extends State<_SessionBody> {
                       icon: Icons.settings_rounded,
                       color: colors.idle,
                       size: 32,
-                      tooltip: '폰트 / 테마',
+                      tooltip: l10n.toolbarSettings,
                       onTap: () => showDialog<void>(
                         context: context,
                         builder: (_) => const SettingsDialog(),
@@ -193,7 +196,7 @@ class _SessionBodyState extends State<_SessionBody> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          session.errorMessage ?? '알 수 없는 오류',
+                          _errorText(l10n, session.error),
                           style: TextStyle(
                             color: scheme.onSurface,
                             fontSize: 13,
@@ -228,7 +231,7 @@ class _SessionBodyState extends State<_SessionBody> {
                           top: 10,
                           right: 10,
                           child: StatusPill(
-                            label: 'CONNECTED',
+                            label: l10n.statusConnected,
                             color: AppColors.success,
                             textColor: colors.successText,
                           ),
@@ -270,6 +273,15 @@ class _SessionBodyState extends State<_SessionBody> {
     );
   }
 }
+
+/// 연결 오류 문구. OS가 준 원문([SerialServiceException.detail])은 번역하지
+/// 않고 그대로 붙인다.
+String _errorText(AppLocalizations l10n, SerialServiceException? error) => switch (error?.kind) {
+      SerialErrorKind.openFailed => l10n.errorOpenFailed(error?.detail ?? l10n.errorUnknown),
+      SerialErrorKind.notOpen => l10n.errorNotConnected,
+      SerialErrorKind.deviceDisconnected => l10n.errorDeviceDisconnected,
+      SerialErrorKind.io || null => error?.detail ?? l10n.errorUnknown,
+    };
 
 /// 위/아래 두 영역 사이의 드래그 가능한 경계선.
 /// 세로 드래그 델타(dy)만 부모에 알려주고, 그걸 비율 변화량으로 바꿔

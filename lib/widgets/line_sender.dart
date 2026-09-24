@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../l10n/app_localizations.dart';
 import '../models/line_ending.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
@@ -104,6 +105,7 @@ class _LineSenderState extends State<LineSender> {
     final session = context.watch<TerminalSessionProvider>();
     final connected = session.status == ConnectionStatus.connected;
     final scheme = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
 
     return Row(
       // 부모(HomeScreen)가 이 위젯 전체에 드래그로 조절 가능한 높이를 주므로,
@@ -122,7 +124,7 @@ class _LineSenderState extends State<LineSender> {
               style: AppFonts.mono.copyWith(fontSize: 13, color: scheme.onSurface),
               decoration: InputDecoration(
                 isDense: true,
-                hintText: 'Enter: 커서 줄 전송 · Ctrl+Enter: 줄바꿈',
+                hintText: l10n.senderHint,
                 contentPadding: const EdgeInsets.all(10),
                 filled: true,
                 fillColor: PortsideColors.of(context).inset,
@@ -151,19 +153,19 @@ class _LineSenderState extends State<LineSender> {
                   isDense: true,
                   items: [
                     for (final e in LineEnding.values)
-                      DropdownMenuItem(value: e, child: Text(e.label)),
+                      DropdownMenuItem(value: e, child: Text(e.label ?? l10n.senderLineEndingNone)),
                   ],
                   onChanged: (value) {
                     if (value != null) session.setLineEnding(value);
                   },
                 ),
                 Tooltip(
-                  message: '보낸 내용을 터미널 화면에도 표시',
+                  message: l10n.senderEchoTooltip,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Echo',
+                        l10n.senderEcho,
                         style: TextStyle(
                           fontSize: 12,
                           color: scheme.onSurfaceVariant,
@@ -186,7 +188,7 @@ class _LineSenderState extends State<LineSender> {
                   color: scheme.primary,
                   active: connected,
                   size: 34,
-                  tooltip: '현재 줄 전송',
+                  tooltip: l10n.senderSend,
                   onTap: connected ? _sendCurrentLine : null,
                 ),
               ],

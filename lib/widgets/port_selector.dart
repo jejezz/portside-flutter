@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
 import '../services/serial_service.dart';
 import '../theme/tokens.dart';
 import 'glass_card.dart';
@@ -66,7 +67,7 @@ class _PortSelectorState extends State<PortSelector> {
             isExpanded: true,
             decoration: InputDecoration(
               isDense: true,
-              hintText: '포트',
+              hintText: AppLocalizations.of(context).portHint,
               contentPadding: const EdgeInsets.symmetric(vertical: 8),
               filled: true,
               fillColor: PortsideColors.of(context).inset,
@@ -97,7 +98,7 @@ class _PortSelectorState extends State<PortSelector> {
           icon: Icons.refresh_rounded,
           color: PortsideColors.of(context).idle,
           size: 34,
-          tooltip: '포트 새로고침',
+          tooltip: AppLocalizations.of(context).portRefresh,
           onTap: widget.enabled ? _refresh : null,
         ),
       ],

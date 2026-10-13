@@ -7,6 +7,8 @@ import 'about/extra_licenses.dart';
 import 'app.dart';
 import 'app_identity.dart';
 import 'settings/app_settings.dart';
+import 'update/update_scope.dart';
+import 'update/update_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,5 +32,8 @@ Future<void> main() async {
   }
 
   final settings = await AppSettings.load();
-  runApp(PortsideApp(settings: settings));
+  // 데스크톱이 아니거나 UPDATE_SERVER 가 비어 있으면 null — 업데이트 확인 없음.
+  final updates = await UpdateService.create();
+  // UpdateScope 는 MaterialApp 위 — 정보 창이 이것을 읽어 "업데이트 확인" 단추를 붙인다.
+  runApp(UpdateScope(service: updates, child: PortsideApp(settings: settings, updates: updates)));
 }

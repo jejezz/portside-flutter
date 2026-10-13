@@ -14,6 +14,7 @@ import 'settings/app_settings.dart';
 import 'state/sessions_provider.dart';
 import 'state/settings_provider.dart';
 import 'theme/tokens.dart';
+import 'update/update_service.dart';
 import 'utils/app_shortcuts.dart';
 
 /// 메뉴/버튼/라벨을 SeoulNamsan Light(300)로 그린다 — Material 기본 굵기는
@@ -51,10 +52,13 @@ ThemeData _buildTheme(Brightness brightness) {
 }
 
 class PortsideApp extends StatefulWidget {
-  const PortsideApp({super.key, required this.settings});
+  const PortsideApp({super.key, required this.settings, this.updates});
 
   /// 테마 모드·언어 (theme_mode / app_locale).
   final AppSettings settings;
+
+  /// 시작할 때 새 버전을 확인한다. null 이면 업데이트 확인을 쓰지 않는다.
+  final UpdateService? updates;
 
   @override
   State<PortsideApp> createState() => _PortsideAppState();
@@ -81,6 +85,7 @@ class _PortsideAppState extends State<PortsideApp> with WidgetsBindingObserver {
     // no-op이라 중복 호출해도 안전하다.
     _settings.addListener(_syncScrollback);
     _sessions.addListener(_syncScrollback);
+    widget.updates?.startAutomaticCheck(_navigatorKey);
   }
 
   void _syncScrollback() {
@@ -106,6 +111,11 @@ class _PortsideAppState extends State<PortsideApp> with WidgetsBindingObserver {
   void _showAbout() {
     final context = _navigatorKey.currentContext;
     if (context != null) showPortsideAbout(context);
+  }
+
+  void _checkForUpdates() {
+    final context = _navigatorKey.currentContext;
+    if (context != null) widget.updates?.checkManually(context);
   }
 
   @override
@@ -173,7 +183,11 @@ class _PortsideAppState extends State<PortsideApp> with WidgetsBindingObserver {
                   localizationsDelegates: AppLocalizations.localizationsDelegates,
                   supportedLocales: AppLocalizations.supportedLocales,
                   localeResolutionCallback: AppSettings.resolveLocale,
-                  builder: (context, child) => AppMenuBar(onAbout: _showAbout, child: child!),
+                  builder: (context, child) => AppMenuBar(
+                    onAbout: _showAbout,
+                    onCheckForUpdates: widget.updates == null ? null : _checkForUpdates,
+                    child: child!,
+                  ),
                   home: const HomeScreen(),
                 ),
               ),

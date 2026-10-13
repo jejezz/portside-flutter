@@ -1,7 +1,7 @@
 name: portside
 description: "Portside — 시리얼(USB-to-COM) 터미널"
 publish_to: 'none'
-version: 0.2.1+21
+version: 0.2.3+23
 
 environment:
   sdk: ^3.13.1
@@ -21,7 +21,11 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   window_manager: ^0.5.2
-  path: ^1.9.1
+  app_updater:
+    git:
+      url: https://github.com/jejezz/application-release-templates
+      ref: updater-v0.1.0
+      path: updater
 
 dev_dependencies:
   flutter_test:

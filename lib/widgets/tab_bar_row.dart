@@ -8,6 +8,7 @@ import '../state/sessions_provider.dart';
 import '../state/terminal_session_provider.dart';
 import '../theme/tokens.dart';
 import '../utils/app_shortcuts.dart';
+import '../window/focus_tint.dart';
 import 'glass_card.dart';
 
 /// 세션(탭) 목록을 보여주는 얇은 가로 바. 탭이 동적으로 추가/삭제돼서
@@ -22,9 +23,7 @@ class TabBarRow extends StatelessWidget {
     final sessionsProvider = context.watch<SessionsProvider>();
     final sessions = sessionsProvider.sessions;
 
-    return SizedBox(
-      height: 52,
-      child: Row(
+    final row = Row(
         children: [
           const SizedBox(width: 12),
           Expanded(
@@ -65,7 +64,12 @@ class TabBarRow extends StatelessWidget {
           ),
           const SizedBox(width: 12),
         ],
-      ),
+    );
+
+    // 창이 포커스를 받으면 탭 바 배경이 서서히 물든다 (ui-ux.md §4).
+    return SizedBox(
+      height: 52,
+      child: Stack(children: [const Positioned.fill(child: FocusTint()), row]),
     );
   }
 }

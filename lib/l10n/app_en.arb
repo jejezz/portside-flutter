@@ -53,6 +53,56 @@
   "senderEcho": "Echo",
   "senderEchoTooltip": "Also show sent text in the terminal",
   "senderSend": "Send Current Line",
+  "senderLineEndingTooltip": "Line ending",
+  "senderOpen": "Open a script ({key})",
+  "@senderOpen": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "senderSave": "Save ({key})",
+  "@senderSave": {
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "senderSaveAs": "Save as…",
+  "senderNew": "New script",
+  "senderModified": "modified",
+  "senderUnsavedTitle": "Unsaved changes",
+  "senderUnsavedBody": "{name} has changes that are not saved.",
+  "@senderUnsavedBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "senderUntitled": "Untitled",
+  "senderDiscard": "Discard",
+  "senderSaveFirst": "Save",
+  "senderFileTooLarge": "The file is too large (max {mb} MB)",
+  "@senderFileTooLarge": {
+    "placeholders": {
+      "mb": {
+        "type": "int"
+      }
+    }
+  },
+  "senderFileNotUtf8": "Only UTF-8 text files can be opened",
+  "senderFileError": "Could not handle the file: {detail}",
+  "@senderFileError": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "commonCancel": "Cancel",
   "settingsTitle": "Terminal Settings",
   "settingsFont": "Font",
   "settingsFontSize": "Size",
@@ -72,7 +122,7 @@
   "helpTypingTitle": "Typing in the Terminal",
   "helpTypingBody": "Click the terminal to focus it and type. Arrow keys, Ctrl combinations and Backspace all work. On macOS, Korean input composition breaks because of a library limitation.",
   "helpSenderTitle": "Line Sender",
-  "helpSenderBody": "Write several lines ahead of time and press Enter to send only the line with the cursor. Ctrl+Enter inserts a new line. After sending, the cursor moves to the end of the next line, so pressing Enter repeatedly sends the lines in order.",
+  "helpSenderBody": "Write several lines ahead of time and press Enter to send only the line with the cursor. Ctrl+Enter inserts a new line. After sending, the cursor moves to the end of the next line, so pressing Enter repeatedly sends the lines in order. The buttons below the box open (Ctrl+O) and save (Ctrl+S) the script as a file; the file you are editing is shown at the top of the box.",
   "helpHexTitle": "Hex View",
   "helpHexBody": "Switch with the Terminal/Hex toggle in the toolbar. It shows the bytes actually received as a hex dump.",
   "helpLoggingTitle": "Logging",

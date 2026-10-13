@@ -192,6 +192,61 @@ class AppLocalizationsKo extends AppLocalizations {
   String get senderSend => '현재 줄 전송';
 
   @override
+  String get senderLineEndingTooltip => '줄 끝 문자';
+
+  @override
+  String senderOpen(String key) {
+    return '스크립트 열기 ($key)';
+  }
+
+  @override
+  String senderSave(String key) {
+    return '저장 ($key)';
+  }
+
+  @override
+  String get senderSaveAs => '다른 이름으로 저장…';
+
+  @override
+  String get senderNew => '새로 만들기';
+
+  @override
+  String get senderModified => '변경됨';
+
+  @override
+  String get senderUnsavedTitle => '저장하지 않은 변경 사항';
+
+  @override
+  String senderUnsavedBody(String name) {
+    return '$name의 변경 사항을 저장하지 않았습니다.';
+  }
+
+  @override
+  String get senderUntitled => '제목 없음';
+
+  @override
+  String get senderDiscard => '버리기';
+
+  @override
+  String get senderSaveFirst => '저장';
+
+  @override
+  String senderFileTooLarge(int mb) {
+    return '파일이 너무 큽니다 (최대 ${mb}MB)';
+  }
+
+  @override
+  String get senderFileNotUtf8 => 'UTF-8 텍스트 파일만 열 수 있습니다';
+
+  @override
+  String senderFileError(String detail) {
+    return '파일을 처리하지 못했습니다: $detail';
+  }
+
+  @override
+  String get commonCancel => '취소';
+
+  @override
   String get settingsTitle => '터미널 설정';
 
   @override
@@ -259,7 +314,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get helpSenderBody =>
-      '여러 줄을 미리 써 두고 Enter로 커서가 있는 줄만 보내요. Ctrl+Enter는 줄바꿈이에요. 보낸 뒤 커서가 다음 줄 끝으로 가서, Enter를 계속 누르면 위에서부터 차례로 보내져요.';
+      '여러 줄을 미리 써 두고 Enter로 커서가 있는 줄만 보내요. Ctrl+Enter는 줄바꿈이에요. 보낸 뒤 커서가 다음 줄 끝으로 가서, Enter를 계속 누르면 위에서부터 차례로 보내져요. 입력 칸 아래 버튼으로 스크립트를 파일에서 불러오고(Ctrl+O) 저장할 수 있어요(Ctrl+S). 편집 중인 파일 이름은 입력 칸 맨 위에 보여요.';
 
   @override
   String get helpHexTitle => 'Hex View';

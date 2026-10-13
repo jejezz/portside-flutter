@@ -33,7 +33,7 @@
 - **Tabbed sessions** — open a tab per port and talk to several boards at once; background tabs keep receiving and logging
 - **Hot-plug port list** — ports are rescanned every 2 seconds; any baud rate, with presets from 1200 to 230400
 - **Real terminal** — ANSI 256-color and true-color, arrow keys and Ctrl combinations, scrollback up to 100,000 lines ([xterm2](https://pub.dev/packages/xterm2))
-- **Line Sender** — write a script of commands, then press Enter to send the line under the cursor and move to the next; choose none / `\n` / `\r` / `\r\n` endings and local echo
+- **Line Sender** — write a script of commands, then press Enter to send the line under the cursor and move to the next; choose none / `\n` / `\r` / `\r\n` endings and local echo; open and save scripts as UTF-8 text files (Ctrl+O / Ctrl+S)
 - **Hex View and logging** — see the exact bytes received as a hex dump, and log raw bytes per tab to a file you choose
 - **Terminal color schemes** — Solarized, Dracula, Nord, Gruvbox, green phosphor and more, with your font and size remembered
 - **Light & dark, English & 한국어** — follows the system, or pick one in the toolbar

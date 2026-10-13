@@ -67,6 +67,24 @@ class _SessionBodyState extends State<_SessionBody> {
   static const double _maxSenderFraction = 0.75;
   double _senderFraction = 0.24;
 
+  /// LineSender 영역(GlassCard 포함)이 가져야 할 최소 높이: 안쪽 최소 높이 + 카드 여백(12×2) + 보더(1×2).
+  /// 이보다 작으면 이름 칩이나 하단 버튼 줄이 잘린다.
+  static const double _minSenderHeight = LineSender.minHeight + 12 * 2 + 2;
+
+  /// 툴바·터미널 카드 사이 간격·상태 바·구분선 같은 고정 요소가 차지하는 높이의 **넉넉한** 추정치.
+  /// 영역은 "고정 요소를 뺀 나머지"를 비율로 나눠 가지므로, 비율의 하한을 이 값으로 계산하면 실제 고정 요소가
+  /// 추정보다 작을 때 영역이 조금 더 커질 뿐 필요한 높이보다 작아지지는 않는다 (홈 화면 테스트가 실제 값으로 확인한다).
+  static const double _fixedHeightEstimate = 230;
+
+  /// [maxHeight] 높이의 화면에서 LineSender 영역이 최소 높이를 지키는 비율.
+  double _minFraction(double maxHeight) {
+    final room = (maxHeight - _fixedHeightEstimate).clamp(1.0, double.infinity);
+    return (_minSenderHeight / room).clamp(
+      _minSenderFraction,
+      _maxSenderFraction,
+    );
+  }
+
   void _connect(TerminalSessionProvider session) {
     final port = session.pendingPort;
     final baud = session.pendingBaudRate;
@@ -90,7 +108,12 @@ class _SessionBodyState extends State<_SessionBody> {
       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final bottomFlex = (_senderFraction * 1000).round().clamp(1, 999);
+          final minFraction = _minFraction(constraints.maxHeight);
+          final fraction = _senderFraction.clamp(
+            minFraction,
+            _maxSenderFraction,
+          );
+          final bottomFlex = (fraction * 1000).round().clamp(1, 999);
           final topFlex = 1000 - bottomFlex;
 
           return Column(
@@ -129,7 +152,11 @@ class _SessionBodyState extends State<_SessionBody> {
                       onPressed: connected
                           ? session.disconnect
                           : (canConnect ? () => _connect(session) : null),
-                      child: Text(connected ? l10n.toolbarDisconnect : l10n.toolbarConnect),
+                      child: Text(
+                        connected
+                            ? l10n.toolbarDisconnect
+                            : l10n.toolbarConnect,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     SegmentedButton<ViewMode>(
@@ -255,8 +282,8 @@ class _SessionBodyState extends State<_SessionBody> {
                 onDrag: (dy) {
                   setState(() {
                     final delta = -dy / constraints.maxHeight;
-                    _senderFraction = (_senderFraction + delta).clamp(
-                      _minSenderFraction,
+                    _senderFraction = (fraction + delta).clamp(
+                      minFraction,
                       _maxSenderFraction,
                     );
                   });
@@ -279,8 +306,11 @@ class _SessionBodyState extends State<_SessionBody> {
 
 /// 연결 오류 문구. OS가 준 원문([SerialServiceException.detail])은 번역하지
 /// 않고 그대로 붙인다.
-String _errorText(AppLocalizations l10n, SerialServiceException? error) => switch (error?.kind) {
-      SerialErrorKind.openFailed => l10n.errorOpenFailed(error?.detail ?? l10n.errorUnknown),
+String _errorText(AppLocalizations l10n, SerialServiceException? error) =>
+    switch (error?.kind) {
+      SerialErrorKind.openFailed => l10n.errorOpenFailed(
+        error?.detail ?? l10n.errorUnknown,
+      ),
       SerialErrorKind.notOpen => l10n.errorNotConnected,
       SerialErrorKind.deviceDisconnected => l10n.errorDeviceDisconnected,
       SerialErrorKind.io || null => error?.detail ?? l10n.errorUnknown,

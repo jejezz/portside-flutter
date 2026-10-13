@@ -163,6 +163,22 @@ def shadowed(art: Image.Image) -> Image.Image:
     return art if APP_HUE is None or PROP_COMPOSED else with_shadow(art)
 
 
+def is_plain_light(prop: Image.Image) -> bool:
+    """A white, outline-free glyph: invisible on light backgrounds and busy on
+    the cat, so it needs a backing tile."""
+    px = [p for p in prop.getdata() if p[3] > 200]
+    return bool(px) and min(min(p[:3]) for p in px) > 200
+
+
+def backed(prop: Image.Image) -> Image.Image:
+    """Plain white glyph on a dark rounded tile with a white sticker border."""
+    tile = Image.new('RGBA', (MASTER, MASTER), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(tile)
+    draw.rounded_rectangle((60, 60, 964, 964), radius=210, fill=(0xF2, 0xF2, 0xF2, 255))
+    draw.rounded_rectangle((120, 120, 904, 904), radius=160, fill=(0x2A, 0x2D, 0x45, 255))
+    return centre(tile, fit(prop, 470))
+
+
 def cat_with_prop(cat: Image.Image, prop: Image.Image) -> Image.Image:
     """Cat (with shadow) up-left, prop sticker lower right, on a MASTER canvas."""
     canvas = Image.new('RGBA', (MASTER, MASTER), (0, 0, 0, 0))
@@ -170,6 +186,8 @@ def cat_with_prop(cat: Image.Image, prop: Image.Image) -> Image.Image:
     canvas.alpha_composite(cat_art, (
         (MASTER - cat_art.width) // 2 + round(CAT_PROP_CAT_OFFSET[0] * MASTER),
         (MASTER - cat_art.height) // 2 + round(CAT_PROP_CAT_OFFSET[1] * MASTER)))
+    if is_plain_light(prop):
+        prop = backed(prop)
     badge = fit(prop, round(MASTER * CAT_PROP_BADGE))
     margin = round(MASTER * CAT_PROP_MARGIN)
     canvas.alpha_composite(badge, (MASTER - badge.width - margin, MASTER - badge.height - margin))

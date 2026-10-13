@@ -416,6 +416,96 @@ abstract class AppLocalizations {
   /// **'현재 줄 전송'**
   String get senderSend;
 
+  /// No description provided for @senderLineEndingTooltip.
+  ///
+  /// In ko, this message translates to:
+  /// **'줄 끝 문자'**
+  String get senderLineEndingTooltip;
+
+  /// No description provided for @senderOpen.
+  ///
+  /// In ko, this message translates to:
+  /// **'스크립트 열기 ({key})'**
+  String senderOpen(String key);
+
+  /// No description provided for @senderSave.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장 ({key})'**
+  String senderSave(String key);
+
+  /// No description provided for @senderSaveAs.
+  ///
+  /// In ko, this message translates to:
+  /// **'다른 이름으로 저장…'**
+  String get senderSaveAs;
+
+  /// No description provided for @senderNew.
+  ///
+  /// In ko, this message translates to:
+  /// **'새로 만들기'**
+  String get senderNew;
+
+  /// No description provided for @senderModified.
+  ///
+  /// In ko, this message translates to:
+  /// **'변경됨'**
+  String get senderModified;
+
+  /// No description provided for @senderUnsavedTitle.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장하지 않은 변경 사항'**
+  String get senderUnsavedTitle;
+
+  /// No description provided for @senderUnsavedBody.
+  ///
+  /// In ko, this message translates to:
+  /// **'{name}의 변경 사항을 저장하지 않았습니다.'**
+  String senderUnsavedBody(String name);
+
+  /// No description provided for @senderUntitled.
+  ///
+  /// In ko, this message translates to:
+  /// **'제목 없음'**
+  String get senderUntitled;
+
+  /// No description provided for @senderDiscard.
+  ///
+  /// In ko, this message translates to:
+  /// **'버리기'**
+  String get senderDiscard;
+
+  /// No description provided for @senderSaveFirst.
+  ///
+  /// In ko, this message translates to:
+  /// **'저장'**
+  String get senderSaveFirst;
+
+  /// No description provided for @senderFileTooLarge.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일이 너무 큽니다 (최대 {mb}MB)'**
+  String senderFileTooLarge(int mb);
+
+  /// No description provided for @senderFileNotUtf8.
+  ///
+  /// In ko, this message translates to:
+  /// **'UTF-8 텍스트 파일만 열 수 있습니다'**
+  String get senderFileNotUtf8;
+
+  /// No description provided for @senderFileError.
+  ///
+  /// In ko, this message translates to:
+  /// **'파일을 처리하지 못했습니다: {detail}'**
+  String senderFileError(String detail);
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In ko, this message translates to:
+  /// **'취소'**
+  String get commonCancel;
+
   /// No description provided for @settingsTitle.
   ///
   /// In ko, this message translates to:
@@ -533,7 +623,7 @@ abstract class AppLocalizations {
   /// No description provided for @helpSenderBody.
   ///
   /// In ko, this message translates to:
-  /// **'여러 줄을 미리 써 두고 Enter로 커서가 있는 줄만 보내요. Ctrl+Enter는 줄바꿈이에요. 보낸 뒤 커서가 다음 줄 끝으로 가서, Enter를 계속 누르면 위에서부터 차례로 보내져요.'**
+  /// **'여러 줄을 미리 써 두고 Enter로 커서가 있는 줄만 보내요. Ctrl+Enter는 줄바꿈이에요. 보낸 뒤 커서가 다음 줄 끝으로 가서, Enter를 계속 누르면 위에서부터 차례로 보내져요. 입력 칸 아래 버튼으로 스크립트를 파일에서 불러오고(Ctrl+O) 저장할 수 있어요(Ctrl+S). 편집 중인 파일 이름은 입력 칸 맨 위에 보여요.'**
   String get helpSenderBody;
 
   /// No description provided for @helpHexTitle.

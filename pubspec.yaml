@@ -21,11 +21,14 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   window_manager: ^0.5.2
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  file_selector_platform_interface: ^2.7.0
+  plugin_platform_interface: ^2.1.8
 
 flutter:
   uses-material-design: true

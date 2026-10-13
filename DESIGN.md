@@ -165,3 +165,12 @@ Phase 10에서 실제 폰트 파일이 없어 `ClipartKorea`를 그대로 뒀던
 - 언어: gen-l10n(한국어 기준 + 영어). 영어로 박혀 있던 Connect/CONNECTED 등도 번역.
 - 설정 키: `font_size`/`font_family`/`theme`/`scrollback_lines` → `terminal_*`. 첫 실행 때 옛 값을 옮긴다.
 - 창: 크기를 Swift `minSize` 대신 `window_manager`로 (1200×720, 최소 860×560).
+
+## Phase 15 — Line Sender를 편집기처럼 (2026-10-13)
+형제 앱 daylight-terminal에서 먼저 다듬은 Line Sender 개선을 같은 모양으로 옮김. 시리얼 앱이라 Echo 스위치와 `IconBadge` 같은 Portside 고유 요소는 그대로 쓴다.
+
+- 스크립트를 파일로 불러오기/저장(새로 만들기 · 열기 · 저장 · 다른 이름으로 저장, Ctrl/⌘ 단축키). 편집 중인 파일 이름과 변경 여부를 하단 줄 맨 왼쪽의 알약 칩(이름은 최대 20자)으로 보여 주고, 저장하지 않은 변경이 있으면 열기·새로 만들기 전에 묻는다.
+- 파일은 UTF-8 텍스트만(BOM 제거, 아니면 거부, 2MB 상한). 칸 안에서는 LF, 저장할 때 원래 줄바꿈(CRLF 등)을 유지한다.
+- 레이아웃: 입력 칸 옆의 열(줄 끝·Echo·전송)을 없애고 입력 칸 아래 한 줄(하단 줄)로 모았다. 좁거나 낮은 영역에서도 버튼이 같은 자리에 같은 크기로 있다. 하단 줄 위에 구분선.
+- 영역은 비율(flex)로 나뉘므로 LineSender의 최소 높이를 지키도록 비율의 하한을 창 높이로 계산한다 (`_minFraction`). 최소 창 860×560에서 구분선을 끝까지 내려도 잘리지 않는다.
+- 스크롤바 위에서 마우스 커서가 화살표로 바뀐다 (`PassThroughCursorRegion`).

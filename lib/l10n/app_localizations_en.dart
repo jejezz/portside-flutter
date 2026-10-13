@@ -199,6 +199,61 @@ class AppLocalizationsEn extends AppLocalizations {
   String get senderSend => 'Send Current Line';
 
   @override
+  String get senderLineEndingTooltip => 'Line ending';
+
+  @override
+  String senderOpen(String key) {
+    return 'Open a script ($key)';
+  }
+
+  @override
+  String senderSave(String key) {
+    return 'Save ($key)';
+  }
+
+  @override
+  String get senderSaveAs => 'Save as…';
+
+  @override
+  String get senderNew => 'New script';
+
+  @override
+  String get senderModified => 'modified';
+
+  @override
+  String get senderUnsavedTitle => 'Unsaved changes';
+
+  @override
+  String senderUnsavedBody(String name) {
+    return '$name has changes that are not saved.';
+  }
+
+  @override
+  String get senderUntitled => 'Untitled';
+
+  @override
+  String get senderDiscard => 'Discard';
+
+  @override
+  String get senderSaveFirst => 'Save';
+
+  @override
+  String senderFileTooLarge(int mb) {
+    return 'The file is too large (max $mb MB)';
+  }
+
+  @override
+  String get senderFileNotUtf8 => 'Only UTF-8 text files can be opened';
+
+  @override
+  String senderFileError(String detail) {
+    return 'Could not handle the file: $detail';
+  }
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
   String get settingsTitle => 'Terminal Settings';
 
   @override
@@ -267,7 +322,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get helpSenderBody =>
-      'Write several lines ahead of time and press Enter to send only the line with the cursor. Ctrl+Enter inserts a new line. After sending, the cursor moves to the end of the next line, so pressing Enter repeatedly sends the lines in order.';
+      'Write several lines ahead of time and press Enter to send only the line with the cursor. Ctrl+Enter inserts a new line. After sending, the cursor moves to the end of the next line, so pressing Enter repeatedly sends the lines in order. The buttons below the box open (Ctrl+O) and save (Ctrl+S) the script as a file; the file you are editing is shown at the top of the box.';
 
   @override
   String get helpHexTitle => 'Hex View';
